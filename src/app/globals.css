@@ -1,0 +1,108 @@
+/* Inter 4.1 from Rasmus' official CDN */
+@import url("https://rsms.me/inter/inter.css");
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+
+  /* Noma design tokens */
+  --color-primary: #1F4591;
+  --color-action: #2B6AD0;
+  --color-soft: #68A4F1;
+  --color-ink: #061E47;
+  --color-page: #FEFEFE;
+  --color-alert: #FF6347;
+  --color-success: #3CB371;
+
+  /* Neutrals */
+  --color-ink-muted: #4A5568;
+  --color-ink-faint: #718096;
+  --color-line: #E2E8F0;
+  --color-line-strong: #CBD5E0;
+  --color-surface: #F7F9FC;
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+@theme inline {
+  --color-background: var(--color-page);
+  --color-foreground: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--color-page);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-action);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Utility classes used across the app */
+.demo-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: #FFF3CD;
+  color: #856404;
+  border: 1px solid #FFECB5;
+}
