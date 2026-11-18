@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/store";
 import { useState } from "react";
-import { CurrencySelector } from "@/components/ui/CurrencySelector";
 
 const NAV_LINKS = [
   { href: "/app", label: "Spaces", exact: true },
@@ -63,10 +62,8 @@ export function AppNav() {
           ))}
         </nav>
 
-        {/* Currency selector + User identity + sign out */}
+        {/* User identity + sign out */}
         <div className="hidden sm:flex items-center gap-4">
-          <CurrencySelector compact />
-
           {user && (
             <Link
               href="/app/account"
@@ -89,8 +86,7 @@ export function AppNav() {
         </div>
 
         {/* Mobile menu button (44px min target) */}
-        <div className="sm:hidden flex items-center gap-2">
-          <CurrencySelector compact />
+        <div className="sm:hidden flex items-center">
           <button
             className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
             aria-expanded={menuOpen}

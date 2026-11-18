@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/lib/store";
-import { CurrencySelector } from "@/components/ui/CurrencySelector";
 
 export function PublicNav() {
   const { user } = useAuth();
@@ -51,10 +50,8 @@ export function PublicNav() {
           </Link>
         </nav>
 
-        {/* Currency Switcher & CTA */}
+        {/* Auth CTA */}
         <div className="hidden sm:flex items-center gap-3">
-          <CurrencySelector compact />
-
           {user ? (
             <Link
               href="/app"
@@ -81,8 +78,7 @@ export function PublicNav() {
         </div>
 
         {/* Mobile controls */}
-        <div className="sm:hidden flex items-center gap-2">
-          <CurrencySelector compact />
+        <div className="sm:hidden flex items-center">
           <button
             className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
             aria-expanded={menuOpen}
