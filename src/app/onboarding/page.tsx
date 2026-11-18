@@ -54,8 +54,9 @@ export default function OnboardingPage() {
     if (step < STEPS.length - 1) {
       setStep((s) => s + 1);
     } else {
-      completeOnboarding();
-      router.push("/app");
+      completeOnboarding(selectedTypes);
+      const primaryType = selectedTypes[0] || "personal";
+      router.push(`/app/spaces/new?type=${primaryType}`);
     }
   }
 
@@ -69,17 +70,29 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-[#FEFEFE] flex flex-col items-center justify-center px-5 py-12">
       <div className="w-full max-w-md">
         {/* Brand header */}
-        <div className="mb-8 text-center sm:text-left">
+        <div className="mb-8 text-center sm:text-left flex items-center gap-2.5 justify-center sm:justify-start">
           <Link
             href="/"
-            className="text-2xl font-bold tracking-tight text-[#1F4591] hover:opacity-85 transition-opacity"
+            className="flex items-center gap-2 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
           >
-            noma.
+            <span className="w-7 h-7 rounded-lg bg-[#1F4591] text-white font-bold flex items-center justify-center text-sm shadow-xs">
+              n
+            </span>
+            <span className="text-2xl font-bold tracking-tight text-[#1F4591]">
+              noma.
+            </span>
           </Link>
         </div>
 
         {/* Progress bar */}
-        <div className="flex gap-2 mb-8" aria-label="Onboarding progress">
+        <div
+          className="flex gap-2 mb-8"
+          role="progressbar"
+          aria-label={`Onboarding step ${step + 1} of ${STEPS.length}`}
+          aria-valuenow={step + 1}
+          aria-valuemin={1}
+          aria-valuemax={STEPS.length}
+        >
           {STEPS.map((s, i) => (
             <div
               key={s.id}
@@ -118,8 +131,9 @@ export default function OnboardingPage() {
                         key={opt.value}
                         className={[
                           "flex items-start gap-3.5 px-4 py-3.5 rounded-lg border cursor-pointer transition-all duration-150",
+                          "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#2B6AD0] has-[:focus-visible]:ring-offset-2",
                           isChecked
-                            ? "border-[#2B6AD0] bg-[#EBF2FC]/70 shadow-sm"
+                            ? "border-[#2B6AD0] bg-[#EBF2FC]/70 shadow-xs"
                             : "border-[#E2E8F0] hover:border-[#68A4F1] bg-[#FEFEFE]",
                         ].join(" ")}
                       >
@@ -161,7 +175,7 @@ export default function OnboardingPage() {
             <ul className="flex flex-col gap-3.5 mt-2">
               {currentStep.points?.map((point, i) => (
                 <li key={i} className="flex gap-3 text-[#4A5568] text-sm leading-relaxed">
-                  <span className="text-[#3CB371] font-bold mt-0.5 shrink-0" aria-hidden="true">✓</span>
+                  <span className="text-[#1E7A45] font-bold mt-0.5 shrink-0" aria-hidden="true">✓</span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -169,9 +183,18 @@ export default function OnboardingPage() {
           )}
 
           {currentStep.id === "ready" && (
-            <p className="text-[#4A5568] leading-relaxed mt-2 text-base">
-              {currentStep.body}
-            </p>
+            <div>
+              <p className="text-[#4A5568] leading-relaxed mt-2 text-base">
+                {currentStep.body}
+              </p>
+              <div className="mt-6 p-4 rounded-lg bg-[#F7F9FC] border border-[#E2E8F0] text-xs text-[#718096] leading-relaxed">
+                Selected preferences:{" "}
+                <span className="font-semibold text-[#061E47]">
+                  {selectedTypes.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(", ")}
+                </span>
+                . We will take you straight to set up your first space.
+              </div>
+            </div>
           )}
 
           {/* Navigation */}
@@ -187,7 +210,7 @@ export default function OnboardingPage() {
               disabled={!canContinue}
               fullWidth={step === 0}
             >
-              {step < STEPS.length - 1 ? "Continue" : "Go to my spaces"}
+              {step < STEPS.length - 1 ? "Continue" : "Create your first space"}
             </Button>
           </div>
         </div>

@@ -158,7 +158,7 @@ export default function PermissionsPage({
                   </div>
                   {confirmRemove === member.id ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#FF6347] font-medium">
+                      <span className="text-xs text-[#C0392B] font-medium">
                         Remove {member.name}?
                       </span>
                       <Button
@@ -220,7 +220,7 @@ export default function PermissionsPage({
             Save changes
           </Button>
           {saved && (
-            <span className="text-xs font-semibold text-[#2D7D4E]">
+            <span className="text-xs font-semibold text-[#1E7A45]">
               Changes saved
             </span>
           )}

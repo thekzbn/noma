@@ -5,6 +5,7 @@ import React, {
   useContext,
   useReducer,
   useCallback,
+  useEffect,
   type ReactNode,
 } from "react";
 import {
@@ -34,9 +35,11 @@ export interface AppState {
   spaces: Space[];
   toasts: ToastMessage[];
   onboardingDone: boolean;
+  onboardingSelectedTypes?: string[];
 }
 
 type Action =
+  | { type: "INIT_STATE"; payload: Partial<AppState> }
   | { type: "SIGN_IN"; payload: AuthUser }
   | { type: "SIGN_OUT" }
   | { type: "ADD_SPACE"; payload: Space }
@@ -51,27 +54,36 @@ type Action =
     }
   | { type: "SHOW_TOAST"; payload: ToastMessage }
   | { type: "DISMISS_TOAST"; payload: string }
-  | { type: "COMPLETE_ONBOARDING" };
+  | { type: "COMPLETE_ONBOARDING"; payload?: { selectedTypes?: string[] } };
 
 // ---- Initial state ----
 
-const initialState: AppState = {
+const STORAGE_KEY = "noma_app_state_v1";
+
+const defaultInitialState: AppState = {
   user: null,
   spaces: [...DEMO_SPACES, DEMO_CAMPAIGN],
   toasts: [],
   onboardingDone: false,
+  onboardingSelectedTypes: ["personal"],
 };
 
 // ---- Reducer ----
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case "INIT_STATE":
+      return {
+        ...state,
+        ...action.payload,
+        toasts: [], // Don't restore transient toasts
+      };
     case "SIGN_IN":
       return { ...state, user: action.payload };
     case "SIGN_OUT":
       return { ...state, user: null, onboardingDone: false };
     case "ADD_SPACE":
-      return { ...state, spaces: [...state.spaces, action.payload] };
+      return { ...state, spaces: [action.payload, ...state.spaces] };
     case "UPDATE_SPACE":
       return {
         ...state,
@@ -154,7 +166,13 @@ function reducer(state: AppState, action: Action): AppState {
         toasts: state.toasts.filter((t) => t.id !== action.payload),
       };
     case "COMPLETE_ONBOARDING":
-      return { ...state, onboardingDone: true };
+      return {
+        ...state,
+        onboardingDone: true,
+        ...(action.payload?.selectedTypes
+          ? { onboardingSelectedTypes: action.payload.selectedTypes }
+          : {}),
+      };
     default:
       return state;
   }
@@ -172,13 +190,39 @@ interface AppContextValue {
   rejectPayout: (spaceId: string, payoutId: string) => void;
   showToast: (message: string, type?: ToastMessage["type"]) => void;
   dismissToast: (id: string) => void;
-  completeOnboarding: () => void;
+  completeOnboarding: (selectedTypes?: string[]) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, defaultInitialState);
+
+  // Restore persisted state on client mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        dispatch({ type: "INIT_STATE", payload: parsed });
+      }
+    } catch {
+      // Ignore local storage error or invalid JSON
+    }
+  }, []);
+
+  // Save changes to localStorage
+  useEffect(() => {
+    try {
+      const { user, spaces, onboardingDone, onboardingSelectedTypes } = state;
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ user, spaces, onboardingDone, onboardingSelectedTypes })
+      );
+    } catch {
+      // Ignore localStorage quotas / private browsing errors
+    }
+  }, [state]);
 
   const signIn = useCallback((user: AuthUser) => {
     dispatch({ type: "SIGN_IN", payload: user });
@@ -228,8 +272,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "DISMISS_TOAST", payload: id });
   }, []);
 
-  const completeOnboarding = useCallback(() => {
-    dispatch({ type: "COMPLETE_ONBOARDING" });
+  const completeOnboarding = useCallback((selectedTypes?: string[]) => {
+    dispatch({ type: "COMPLETE_ONBOARDING", payload: { selectedTypes } });
   }, []);
 
   return (

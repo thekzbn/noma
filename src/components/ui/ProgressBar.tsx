@@ -1,6 +1,7 @@
 interface ProgressBarProps {
   value: number; // 0–100
   label?: string;
+  ariaLabel?: string;
   showLabel?: boolean;
   size?: "sm" | "md";
 }
@@ -8,6 +9,7 @@ interface ProgressBarProps {
 export function ProgressBar({
   value,
   label,
+  ariaLabel,
   showLabel = true,
   size = "md",
 }: ProgressBarProps) {
@@ -28,6 +30,7 @@ export function ProgressBar({
         aria-valuenow={clamped}
         aria-valuemin={0}
         aria-valuemax={100}
+        aria-label={ariaLabel}
       >
         <div
           className={`${height} rounded-full transition-all duration-500`}
@@ -35,7 +38,7 @@ export function ProgressBar({
             width: `${clamped}%`,
             backgroundColor:
               clamped >= 100
-                ? "#3CB371"
+                ? "#1E7A45"
                 : clamped >= 75
                 ? "#2B6AD0"
                 : "#68A4F1",

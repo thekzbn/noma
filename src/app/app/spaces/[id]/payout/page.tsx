@@ -53,7 +53,6 @@ export default function PayoutPage({
     currentSpace.type === "shared" ||
     (currentSpace.governanceThreshold ?? 0) > 1;
 
-  // Subtract pending payouts to calculate available balance
   const pendingPayoutsTotal = currentSpace.payoutRequests
     .filter((p) => p.status === "pending")
     .reduce((sum, p) => sum + p.amount, 0);
@@ -206,7 +205,7 @@ export default function PayoutPage({
               Review payout request
             </h1>
 
-            <dl className="divide-y divide-[#E2E8F0] mb-8">
+            <dl className="divide-y divide-[#E2E8F0] mb-6">
               {[
                 ["Space", space.name],
                 ["Amount", formatCurrency(parsedAmount, space.currency)],
@@ -231,8 +230,8 @@ export default function PayoutPage({
               ))}
             </dl>
 
-            <p className="text-xs text-[#718096] mb-8 leading-relaxed">
-              Payouts are disbursed strictly according to the governance rules established for this space.
+            <p className="text-xs text-[#856404] bg-[#FFF8E6] border border-[#F6D860] rounded-lg px-3 py-2 mb-8 leading-relaxed">
+              Demo only — submitting this request will not move real money. The request will appear in the space ledger as a simulation.
             </p>
 
             <div className="flex gap-3">
@@ -240,7 +239,7 @@ export default function PayoutPage({
                 Back
               </Button>
               <Button variant="primary" fullWidth onClick={handleConfirm}>
-                Submit request
+                Submit demo request
               </Button>
             </div>
           </div>
@@ -248,8 +247,8 @@ export default function PayoutPage({
 
         {/* STEP: Processing */}
         {step === "processing" && (
-          <div className="text-center py-16">
-            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" />
+          <div className="text-center py-16" role="status" aria-live="polite">
+            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" aria-hidden="true" />
             <p className="text-base font-semibold text-[#061E47]">
               Submitting payout request
             </p>
@@ -258,19 +257,22 @@ export default function PayoutPage({
 
         {/* STEP: Pending */}
         {step === "pending" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#FFF8E6] text-[#856404] flex items-center justify-center font-bold text-xl mb-6">
-              ⏱
+          <div className="py-8" role="status" aria-live="polite">
+            <div
+              className="w-12 h-12 rounded-full bg-[#FFF8E6] text-[#856404] flex items-center justify-center font-bold text-xl mb-6"
+              aria-hidden="true"
+            >
+              ⏳
             </div>
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
               Request submitted
             </h1>
             <p className="text-sm text-[#4A5568] mb-4 leading-relaxed">
               Your payout request for {formatCurrency(parsedAmount, space.currency)} is waiting for{" "}
-              {space.governanceThreshold ?? 2} member approvals. It will be recorded in the space activity once approved.
+              {space.governanceThreshold ?? 2} member approvals. It will appear in the space activity once approved.
             </p>
             <p className="text-xs text-[#718096] mb-8">
-              Members with approval permissions have been notified to review this request.
+              Members with approval permissions can review this request from the space page.
             </p>
             <Button
               variant="primary"
@@ -283,15 +285,21 @@ export default function PayoutPage({
 
         {/* STEP: Confirmed */}
         {step === "confirmed" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#2D7D4E] flex items-center justify-center font-bold text-xl mb-6">
+          <div className="py-8" role="status" aria-live="polite">
+            <div
+              className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#1E7A45] flex items-center justify-center font-bold text-xl mb-6"
+              aria-hidden="true"
+            >
               ✓
             </div>
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
-              Payout confirmed
+              Request recorded
             </h1>
-            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
-              {formatCurrency(parsedAmount, space.currency)} will be sent to {destination}.
+            <p className="text-sm text-[#4A5568] mb-2 leading-relaxed">
+              {formatCurrency(parsedAmount, space.currency)} payout to {destination} has been recorded in this demo session.
+            </p>
+            <p className="text-xs text-[#718096] mb-8">
+              In production, this would trigger a real disbursement upon approval.
             </p>
             <Button
               variant="primary"

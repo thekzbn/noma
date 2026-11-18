@@ -8,6 +8,7 @@ import { useState } from "react";
 const NAV_LINKS = [
   { href: "/app", label: "Spaces", exact: true },
   { href: "/app/activity", label: "Activity", exact: false },
+  { href: "/planner", label: "Planner", exact: false },
 ];
 
 export function AppNav() {
@@ -28,23 +29,29 @@ export function AppNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-[#FEFEFE]/95" style={{ backdropFilter: "blur(8px)" }}>
-      <div className="max-w-4xl mx-auto px-5 h-14 flex items-center justify-between gap-6">
-        {/* Brand logomark */}
+      <div className="max-w-4xl mx-auto px-5 h-16 flex items-center justify-between gap-6">
+        {/* Brand Device + Wordmark */}
         <Link
           href="/app"
-          className="text-[#1F4591] font-semibold text-lg tracking-tight hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+          className="flex items-center gap-2 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded py-1"
+          aria-label="Noma app home"
         >
-          noma.
+          <div className="w-7 h-7 rounded-lg bg-[#1F4591] text-white flex items-center justify-center font-bold text-xs shadow-xs transition-transform group-hover:scale-105">
+            n
+          </div>
+          <span className="text-[#1F4591] font-bold text-lg tracking-tight">
+            noma.
+          </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden sm:flex items-center gap-1 flex-1" aria-label="App navigation">
+        <nav className="hidden sm:flex items-center gap-1.5 flex-1" aria-label="App navigation">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={[
-                "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]",
+                "px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]",
                 isActive(link.href, link.exact)
                   ? "text-[#1F4591] bg-[#EBF2FC]"
                   : "text-[#4A5568] hover:text-[#1F4591] hover:bg-[#F7F9FC]",
@@ -61,9 +68,9 @@ export function AppNav() {
             <Link
               href="/app/account"
               className={[
-                "text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded",
+                "text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded px-2 py-1",
                 isActive("/app/account", false)
-                  ? "text-[#1F4591]"
+                  ? "text-[#1F4591] bg-[#EBF2FC]"
                   : "text-[#4A5568] hover:text-[#1F4591]",
               ].join(" ")}
             >
@@ -72,15 +79,15 @@ export function AppNav() {
           )}
           <button
             onClick={handleSignOut}
-            className="text-sm text-[#718096] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+            className="text-sm font-medium text-[#718096] hover:text-[#C0392B] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded py-1 px-1.5"
           >
             Sign out
           </button>
         </div>
 
-        {/* Mobile */}
+        {/* Mobile menu button (44px min target) */}
         <button
-          className="sm:hidden p-2 text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
+          className="sm:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
           aria-expanded={menuOpen}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((v) => !v)}
@@ -99,14 +106,15 @@ export function AppNav() {
         </button>
       </div>
 
+      {/* Mobile menu */}
       {menuOpen && (
-        <div className="sm:hidden border-t border-[#E2E8F0] bg-[#FEFEFE] px-5 py-4 flex flex-col gap-2">
+        <div className="sm:hidden border-t border-[#E2E8F0] bg-[#FEFEFE] px-5 py-4 flex flex-col gap-2 shadow-lg">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={[
-                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                "px-3.5 py-2.5 rounded-lg text-base font-medium transition-colors",
                 isActive(link.href, link.exact)
                   ? "text-[#1F4591] bg-[#EBF2FC]"
                   : "text-[#4A5568]",
@@ -120,19 +128,19 @@ export function AppNav() {
             <Link
               href="/app/account"
               className={[
-                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                "px-3.5 py-2.5 rounded-lg text-base font-medium transition-colors",
                 isActive("/app/account", false)
                   ? "text-[#1F4591] bg-[#EBF2FC]"
                   : "text-[#4A5568]",
               ].join(" ")}
               onClick={() => setMenuOpen(false)}
             >
-              Account
+              Account ({user.name})
             </Link>
           )}
           <button
             onClick={() => { handleSignOut(); setMenuOpen(false); }}
-            className="text-left px-3 py-2 text-sm text-[#718096] hover:text-[#1F4591] rounded-lg"
+            className="text-left px-3.5 py-2.5 text-base font-medium text-[#C0392B] hover:bg-[#FFF5F5] rounded-lg mt-1"
           >
             Sign out
           </button>

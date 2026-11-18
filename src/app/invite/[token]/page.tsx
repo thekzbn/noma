@@ -1,24 +1,35 @@
 "use client";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
+import { use, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useApp, useAuth } from "@/lib/store";
-import { getInvitationPreview, type Member } from "@/lib/demo-data";
+import { getInvitationPreview, formatDate, type Member } from "@/lib/demo-data";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { Button } from "@/components/ui/Button";
 
-export default function InviteTokenPage({
+function InviteTokenContent({
   params,
 }: {
   params: Promise<{ token: string }>;
 }) {
   const { token } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const { state, updateSpace, showToast } = useApp();
 
-  const invitation = getInvitationPreview(token, state.spaces);
+  const permsParam = searchParams.get("perms");
+  const customPerms = permsParam
+    ? {
+        canView: true,
+        canContribute: permsParam.includes("canContribute"),
+        canInvite: permsParam.includes("canInvite"),
+        canApprovePayouts: permsParam.includes("canApprovePayouts"),
+      }
+    : undefined;
+
+  const invitation = getInvitationPreview(token, state.spaces, customPerms);
 
   if (!invitation) {
     return (
@@ -28,12 +39,14 @@ export default function InviteTokenPage({
           id="main-content"
           className="max-w-md mx-auto px-5 py-20 text-center flex-1"
         >
+          <div className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#C0392B] flex items-center justify-center font-bold text-xl mx-auto mb-4" aria-hidden="true">
+            ✕
+          </div>
           <h1 className="text-2xl font-semibold text-[#061E47] mb-3">
-            Invitation not found
+            Invitation not found or expired
           </h1>
           <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
-            This invitation link may have expired or already been used. Ask the
-            person who invited you to send a new link.
+            This invitation link may have expired or is invalid. Please ask the person who invited you to generate a new invitation link.
           </p>
           <div className="flex gap-3 justify-center">
             <Link href="/sign-up">
@@ -57,7 +70,7 @@ export default function InviteTokenPage({
       name: user.name || "New member",
       email: user.email || "member@noma.app",
       role: "contributor",
-      joinedAt: "2026-11-18",
+      joinedAt: new Date().toISOString().slice(0, 10),
       permissions: {
         canView: invitation?.permissionsRequested.canView ?? true,
         canContribute: invitation?.permissionsRequested.canContribute ?? true,
@@ -68,7 +81,7 @@ export default function InviteTokenPage({
       },
     };
     updateSpace({ ...space, members: [...space.members, newMember] });
-    showToast(`You have joined ${invitation.spaceName}.`, "success");
+    showToast(`You have joined "${invitation.spaceName}".`, "success");
     router.push(`/app/spaces/${invitation.spaceId}`);
   }
 
@@ -91,12 +104,12 @@ export default function InviteTokenPage({
             </span>
           </div>
           <p className="text-sm text-[#4A5568]">
-            {invitation.invitedBy} has invited you to join this savings space.
+            <span className="font-medium text-[#061E47]">{invitation.invitedBy}</span> has invited you to join this savings space.
           </p>
         </div>
 
         {/* Purpose */}
-        <section className="mb-10">
+        <section className="mb-8">
           <h2 className="text-base font-semibold text-[#061E47] mb-2">
             Purpose
           </h2>
@@ -107,9 +120,9 @@ export default function InviteTokenPage({
 
         {/* Rules */}
         {invitation.rules.length > 0 && (
-          <section className="mb-10">
+          <section className="mb-8">
             <h2 className="text-base font-semibold text-[#061E47] mb-3">
-              Rules
+              Space rules
             </h2>
             <ul className="flex flex-col gap-2">
               {invitation.rules.map((rule, i) => (
@@ -123,39 +136,34 @@ export default function InviteTokenPage({
         )}
 
         {/* Permissions */}
-        <section className="mb-12">
+        <section className="mb-10">
           <h2 className="text-base font-semibold text-[#061E47] mb-3">
-            Permissions granted to you
+            Permissions granted to you upon joining
           </h2>
           <div className="flex flex-wrap gap-2">
             {invitation.permissionsRequested.canView && (
               <span className="px-3 py-1 rounded-full bg-[#EBF2FC] text-[#1F4591] text-xs font-medium">
-                View
+                ✓ View goal & ledger
               </span>
             )}
             {invitation.permissionsRequested.canContribute && (
               <span className="px-3 py-1 rounded-full bg-[#EBF2FC] text-[#1F4591] text-xs font-medium">
-                Contribute
+                ✓ Contribute funds
               </span>
             )}
             {invitation.permissionsRequested.canInvite && (
               <span className="px-3 py-1 rounded-full bg-[#EBF2FC] text-[#1F4591] text-xs font-medium">
-                Invite others
+                ✓ Invite members
               </span>
             )}
             {invitation.permissionsRequested.canApprovePayouts && (
               <span className="px-3 py-1 rounded-full bg-[#EBF2FC] text-[#1F4591] text-xs font-medium">
-                Approve payouts
+                ✓ Approve payouts
               </span>
             )}
           </div>
           <p className="text-xs text-[#718096] mt-3">
-            Invite expires:{" "}
-            {new Date(invitation.expiresAt).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
+            Invitation expires: {formatDate(invitation.expiresAt)}
           </p>
         </section>
 
@@ -172,19 +180,31 @@ export default function InviteTokenPage({
         ) : (
           <div className="pt-2">
             <p className="text-sm text-[#4A5568] mb-4">
-              You need a Noma account to accept this invitation.
+              You need a Noma account to review and accept this invitation.
             </p>
             <div className="flex gap-3">
-              <Link href={`/sign-in?redirect=/invite/${token}`}>
+              <Link href={`/sign-in?redirect=/invite/${token}${permsParam ? `?perms=${permsParam}` : ""}`}>
                 <Button variant="primary">Sign in to accept</Button>
               </Link>
               <Link href="/sign-up">
-                <Button variant="secondary">Create an account</Button>
+                <Button variant="secondary">Create account</Button>
               </Link>
             </div>
           </div>
         )}
       </main>
     </div>
+  );
+}
+
+export default function InviteTokenPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  return (
+    <Suspense>
+      <InviteTokenContent params={params} />
+    </Suspense>
   );
 }

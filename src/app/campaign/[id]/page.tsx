@@ -3,7 +3,7 @@
 import { use } from "react";
 import Link from "next/link";
 import { useApp } from "@/lib/store";
-import { DEMO_CAMPAIGN, formatCurrency, progressPercent } from "@/lib/demo-data";
+import { DEMO_CAMPAIGN, formatCurrency, formatDate, progressPercent } from "@/lib/demo-data";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
@@ -43,11 +43,26 @@ export default function CampaignPage({
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FEFEFE]">
+      <div
+        className="bg-[#FFF8E6] border-b border-[#F6D860] text-[#856404] text-xs text-center py-2 px-4"
+        role="status"
+        aria-label="Demo notice"
+      >
+        Demo campaign — contributions and donors are simulated for prototype verification.
+      </div>
       <PublicNav />
       <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="bg-[#F7F9FC] border-b border-[#E2E8F0] py-14 px-5">
           <div className="max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#EBF2FC] text-[#1F4591]">
+                Public Campaign
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-white border border-[#E2E8F0] text-[#718096]">
+                Demo
+              </span>
+            </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-[#061E47] tracking-tight mb-4">
               {space.name}
             </h1>
@@ -65,10 +80,14 @@ export default function CampaignPage({
                   target of {formatCurrency(space.targetAmount, space.currency)} ({pct}%)
                 </span>
               </div>
-              <ProgressBar value={pct} size="md" />
+              <ProgressBar
+                value={pct}
+                size="md"
+                ariaLabel={`Campaign funding: ${pct}% of ${formatCurrency(space.targetAmount, space.currency)} reached`}
+              />
               <div className="flex flex-wrap gap-6 mt-3 text-xs text-[#718096]">
                 <span>{space.donors?.length ?? 0} total contributions</span>
-                {space.endDate && <span>Campaign concludes: {space.endDate}</span>}
+                {space.endDate && <span>Campaign concludes: {formatDate(space.endDate)}</span>}
               </div>
             </div>
 
@@ -113,17 +132,17 @@ export default function CampaignPage({
                 {space.donors.map((donor) => (
                   <div
                     key={donor.id}
-                    className="flex items-center justify-between py-3 text-sm"
+                    className="flex items-center justify-between py-3 text-sm border-b border-[#F7F9FC] last:border-0"
                   >
                     <div>
                       <span className="font-medium text-[#061E47]">
                         {donor.displayName}
                       </span>
                       <span className="block text-xs text-[#718096] mt-0.5">
-                        {donor.date}
+                        {formatDate(donor.date)}
                       </span>
                     </div>
-                    <span className="font-semibold text-[#2D7D4E]">
+                    <span className="font-semibold text-[#1E7A45]">
                       +{formatCurrency(donor.amount, donor.currency)}
                     </span>
                   </div>
@@ -144,7 +163,12 @@ export default function CampaignPage({
 
       <footer className="border-t border-[#E2E8F0]">
         <div className="max-w-2xl mx-auto px-5 py-8 flex flex-wrap items-center justify-between gap-4">
-          <span className="text-base font-bold text-[#1F4591]">noma.</span>
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded bg-[#1F4591] text-white font-bold flex items-center justify-center text-xs">
+              n
+            </span>
+            <span className="text-base font-bold text-[#1F4591]">noma.</span>
+          </div>
           <div className="flex items-center gap-6 text-sm text-[#718096]">
             <Link href="/" className="hover:text-[#1F4591] transition-colors">
               Home

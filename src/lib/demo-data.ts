@@ -569,10 +569,26 @@ export const DEMO_INVITATIONS: Record<string, InvitationPreview> = {
 
 export function getInvitationPreview(
   token: string,
-  spaces: Space[]
+  spaces: Space[],
+  customPerms?: {
+    canView?: boolean;
+    canContribute?: boolean;
+    canInvite?: boolean;
+    canApprovePayouts?: boolean;
+  }
 ): InvitationPreview | null {
   if (DEMO_INVITATIONS[token]) {
-    return DEMO_INVITATIONS[token];
+    const base = DEMO_INVITATIONS[token];
+    if (customPerms) {
+      return {
+        ...base,
+        permissionsRequested: {
+          ...base.permissionsRequested,
+          ...customPerms,
+        },
+      };
+    }
+    return base;
   }
 
   const cleanId = token.startsWith("inv-") ? token.slice(4) : token;
@@ -592,9 +608,9 @@ export function getInvitationPreview(
       rules: matchedSpace.rules,
       permissionsRequested: {
         canView: true,
-        canContribute: true,
-        canInvite: false,
-        canApprovePayouts: false,
+        canContribute: customPerms?.canContribute ?? true,
+        canInvite: customPerms?.canInvite ?? false,
+        canApprovePayouts: customPerms?.canApprovePayouts ?? false,
       },
       expiresAt: "2027-12-31",
     };
@@ -611,6 +627,16 @@ export function formatCurrency(amount: number, currency: string): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+export function formatDate(iso: string): string {
+  // Accepts "YYYY-MM-DD" or full ISO strings
+  const d = new Date(iso.length === 10 ? iso + "T00:00:00" : iso);
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function progressPercent(saved: number, target: number): number {

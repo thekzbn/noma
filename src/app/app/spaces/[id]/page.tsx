@@ -9,21 +9,58 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   formatCurrency,
+  formatDate,
   progressPercent,
   spaceTypeLabel,
-  statusLabel,
   type Transaction,
   type Space,
 } from "@/lib/demo-data";
 
-function txStatusClass(s: Transaction["status"]) {
-  if (s === "completed") return "text-[#3CB371]";
-  if (s === "failed") return "text-[#FF6347]";
-  if (s === "pending") return "text-[#2B6AD0]";
-  return "text-[#718096]";
+const DEMO_MEMBER_EMAILS = new Set([
+  "adaeze@demo.example",
+  "emeka@demo.example",
+  "ngozi@demo.example",
+  "folake@demo.example",
+  "babs@demo.example",
+  "ifeoma@demo.example",
+  "giving@demo.example",
+]);
+
+function txStatusBadge(s: Transaction["status"]) {
+  if (s === "completed")
+    return (
+      <span className="text-[#1E7A45] font-medium" aria-label="Status: Completed">
+        ✓ Completed
+      </span>
+    );
+  if (s === "failed")
+    return (
+      <span className="text-[#C0392B] font-medium" aria-label="Status: Failed">
+        ✕ Failed
+      </span>
+    );
+  if (s === "pending")
+    return (
+      <span className="text-[#2B6AD0] font-medium" aria-label="Status: Pending">
+        ⏳ Pending
+      </span>
+    );
+  return (
+    <span className="text-[#718096] font-medium" aria-label="Status: Expired">
+      — Expired
+    </span>
+  );
 }
 
-function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="mt-16">
       <div className="mb-5">
@@ -36,11 +73,17 @@ function Section({ title, description, children }: { title: string; description?
 }
 
 function MemberRow({ member }: { member: Space["members"][0] }) {
+  const isDemo = DEMO_MEMBER_EMAILS.has(member.email);
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-4">
       <div>
         <p className="text-base font-medium text-[#061E47]">{member.name}</p>
-        <p className="text-xs text-[#718096]">{member.email}</p>
+        <p className={`text-xs mt-0.5 ${isDemo ? "text-[#A0AEC0] font-mono" : "text-[#718096]"}`}>
+          {member.email}
+          {isDemo && (
+            <span className="ml-1.5 not-italic font-sans text-[#A0AEC0]">(demo)</span>
+          )}
+        </p>
       </div>
       <div className="flex items-center gap-2 flex-wrap sm:justify-end">
         <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#F7F9FC] text-[#4A5568] capitalize">
@@ -102,7 +145,9 @@ export default function SpaceDetailPage({
       <AppShell>
         <div className="py-20 text-center max-w-sm mx-auto">
           <h1 className="text-2xl font-semibold text-[#061E47] mb-2">Space not found</h1>
-          <p className="text-[#4A5568] text-sm mb-6">This space does not exist or you do not have permission to view it.</p>
+          <p className="text-[#4A5568] text-sm mb-6">
+            This space does not exist or you do not have permission to view it.
+          </p>
           <Link href="/app" className="text-[#2B6AD0] font-medium hover:underline text-sm">
             Back to your spaces
           </Link>
@@ -127,6 +172,10 @@ export default function SpaceDetailPage({
     a.date < b.date ? 1 : -1
   );
 
+  // Pending approvals first, then the rest
+  const pendingPayouts = space.payoutRequests.filter((p) => p.status === "pending");
+  const otherPayouts = space.payoutRequests.filter((p) => p.status !== "pending");
+
   return (
     <AppShell>
       {/* Navigation back */}
@@ -148,7 +197,7 @@ export default function SpaceDetailPage({
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#EBF2FC] text-[#1F4591]">
                 {spaceTypeLabel(space.type)}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#2D7D4E]">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#1E7A45] capitalize">
                 {space.status}
               </span>
             </div>
@@ -183,20 +232,25 @@ export default function SpaceDetailPage({
             </div>
           </div>
 
-          <ProgressBar value={pct} showLabel={false} size="md" />
+          <ProgressBar
+            value={pct}
+            showLabel={false}
+            size="md"
+            ariaLabel={`${space.name}: ${pct}% of ${formatCurrency(space.targetAmount, space.currency)} saved`}
+          />
 
           {/* Key Parameters */}
           <div className="flex flex-wrap gap-x-8 gap-y-2 mt-4 text-sm text-[#4A5568]">
             {space.targetDate && (
               <div>
                 <span className="text-[#718096]">Target date: </span>
-                <span className="font-medium text-[#061E47]">{space.targetDate}</span>
+                <span className="font-medium text-[#061E47]">{formatDate(space.targetDate)}</span>
               </div>
             )}
             {space.endDate && (
               <div>
                 <span className="text-[#718096]">Campaign concludes: </span>
-                <span className="font-medium text-[#061E47]">{space.endDate}</span>
+                <span className="font-medium text-[#061E47]">{formatDate(space.endDate)}</span>
               </div>
             )}
             {space.type === "community" && space.contributionCycle && (
@@ -257,62 +311,36 @@ export default function SpaceDetailPage({
         </div>
       </div>
 
-      {/* Rules */}
-      {space.rules.length > 0 && (
-        <Section title="Rules of this space" description="Conditions agreed upon by members for saving and withdrawing.">
-          <ul className="flex flex-col gap-2.5">
-            {space.rules.map((rule, idx) => (
-              <li key={idx} className="text-sm text-[#061E47] flex items-start gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2B6AD0] mt-2 shrink-0" />
-                <span className="leading-relaxed">{rule}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
-
-      {/* Members & Permissions */}
-      <Section title="Members & permissions" description="People who belong to this space and what they are authorised to do.">
-        <div className="flex flex-col">
-          {space.members.map((member) => (
-            <MemberRow key={member.id} member={member} />
-          ))}
-        </div>
-      </Section>
-
-      {/* Payout requests */}
-      {space.payoutRequests.length > 0 && (
-        <Section title="Payout requests" description="Withdrawal requests waiting for approval or recently processed.">
+      {/* Pending payout approvals — elevated */}
+      {pendingPayouts.length > 0 && (
+        <Section
+          title="Pending approvals"
+          description="Payout requests waiting for member votes."
+        >
           <div className="flex flex-col gap-4">
-            {space.payoutRequests.map((req) => {
+            {pendingPayouts.map((req) => {
               const hasApproved =
                 req.approvalsReceived.includes(myMember?.name ?? "") ||
                 req.approvalsReceived.includes(myMember?.id ?? "") ||
                 req.approvalsReceived.includes("member-me");
 
               return (
-                <div key={req.id} className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div
+                  key={req.id}
+                  className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold text-[#061E47]">
                         {formatCurrency(req.amount, req.currency)}
                       </span>
-                      <span
-                        className={[
-                          "text-xs px-2 py-0.5 rounded-full font-medium capitalize",
-                          req.status === "approved"
-                            ? "bg-[#E8F5EE] text-[#2D7D4E]"
-                            : req.status === "rejected"
-                            ? "bg-[#FFECE8] text-[#FF6347]"
-                            : "bg-[#FFF3CD] text-[#856404]",
-                        ].join(" ")}
-                      >
-                        {req.status}
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-[#FFF3CD] text-[#856404]">
+                        ⏳ Pending
                       </span>
                     </div>
                     <p className="text-sm text-[#4A5568] mt-1">{req.reason}</p>
                     <p className="text-xs text-[#718096] mt-0.5">
-                      Requested by {req.requestedBy} for {req.destination}
+                      Requested by {req.requestedBy} · to {req.destination} · {formatDate(req.requestedAt)}
                     </p>
                     {req.approvalsRequired > 0 && (
                       <p className="text-xs text-[#1F4591] mt-1">
@@ -322,11 +350,11 @@ export default function SpaceDetailPage({
                   </div>
 
                   <div className="flex items-center gap-2 sm:shrink-0">
-                    {req.status === "pending" && canApprovePayout && (
+                    {canApprovePayout && (
                       <>
                         {hasApproved ? (
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#2D7D4E]">
-                            Approved by you
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#1E7A45]">
+                            ✓ Approved by you
                           </span>
                         ) : (
                           <div className="flex items-center gap-2">
@@ -362,10 +390,90 @@ export default function SpaceDetailPage({
         </Section>
       )}
 
+      {/* Rules */}
+      {space.rules.length > 0 && (
+        <Section
+          title="Rules of this space"
+          description="Conditions agreed upon by members for saving and withdrawing."
+        >
+          <ul className="flex flex-col gap-2.5">
+            {space.rules.map((rule, idx) => (
+              <li key={idx} className="text-sm text-[#061E47] flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2B6AD0] mt-2 shrink-0" />
+                <span className="leading-relaxed">{rule}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {/* Members & Permissions */}
+      <Section
+        title="Members & permissions"
+        description="People who belong to this space and what they are authorised to do."
+      >
+        <div className="flex flex-col">
+          {space.members.map((member) => (
+            <MemberRow key={member.id} member={member} />
+          ))}
+        </div>
+      </Section>
+
+      {/* Other payout requests (non-pending) */}
+      {otherPayouts.length > 0 && (
+        <Section
+          title="Payout history"
+          description="Previously processed payout requests."
+        >
+          <div className="flex flex-col gap-4">
+            {otherPayouts.map((req) => (
+              <div key={req.id} className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[#061E47]">
+                      {formatCurrency(req.amount, req.currency)}
+                    </span>
+                    <span
+                      className={[
+                        "text-xs px-2 py-0.5 rounded-full font-medium capitalize",
+                        req.status === "approved"
+                          ? "bg-[#E8F5EE] text-[#1E7A45]"
+                          : req.status === "rejected"
+                          ? "bg-[#FFECE8] text-[#C0392B]"
+                          : "bg-[#F7F9FC] text-[#718096]",
+                      ].join(" ")}
+                    >
+                      {req.status === "approved" ? "✓ Approved" : req.status === "rejected" ? "✕ Rejected" : req.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[#4A5568] mt-1">{req.reason}</p>
+                  <p className="text-xs text-[#718096] mt-0.5">
+                    Requested by {req.requestedBy} · to {req.destination} · {formatDate(req.requestedAt)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* Ledger & Activity */}
-      <Section title="Activity ledger" description="Chronological record of every contribution and disbursement.">
+      <Section
+        title="Activity ledger"
+        description="Chronological record of every contribution and disbursement."
+      >
         {sortedTx.length === 0 ? (
-          <p className="text-sm text-[#718096]">No activity recorded yet.</p>
+          <p className="text-sm text-[#718096]">
+            No activity recorded yet.{" "}
+            {canContribute && (
+              <Link
+                href={`/app/spaces/${id}/contribute`}
+                className="text-[#2B6AD0] hover:underline font-medium"
+              >
+                Add the first contribution.
+              </Link>
+            )}
+          </p>
         ) : (
           <div className="flex flex-col">
             {sortedTx.map((tx) => (
@@ -375,7 +483,7 @@ export default function SpaceDetailPage({
               >
                 <div>
                   <div className="font-medium text-[#061E47]">
-                    {tx.type === "contribution" ? "Contribution" : "Payout"}
+                    {tx.type === "contribution" ? "Contribution" : tx.type === "payout" ? "Payout" : "Donation"}
                     {tx.memberName ? ` by ${tx.memberName}` : ""}
                   </div>
                   {tx.note && <div className="text-xs text-[#718096] mt-0.5">{tx.note}</div>}
@@ -385,16 +493,14 @@ export default function SpaceDetailPage({
                   <div
                     className={[
                       "font-semibold",
-                      tx.type === "contribution" ? "text-[#3CB371]" : "text-[#061E47]",
+                      tx.type === "contribution" ? "text-[#1E7A45]" : "text-[#061E47]",
                     ].join(" ")}
                   >
                     {tx.type === "contribution" ? "+" : "-"}
                     {formatCurrency(tx.amount, tx.currency)}
                   </div>
-                  <div className={`text-xs capitalize font-medium ${txStatusClass(tx.status)}`}>
-                    {statusLabel(tx.status)}
-                  </div>
-                  <div className="text-xs text-[#718096]">{tx.date}</div>
+                  <div className="text-xs mt-0.5">{txStatusBadge(tx.status)}</div>
+                  <div className="text-xs text-[#718096]">{formatDate(tx.date)}</div>
                 </div>
               </div>
             ))}
