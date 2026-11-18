@@ -18,11 +18,11 @@ export default function PlannerPage() {
           >
             ← Back to home
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#061E47] tracking-tight mb-3">
-            Group &amp; Personal Savings Planner
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#061E47] leading-[1.24] tracking-normal mb-3">
+            Group and Personal Savings Planner
           </h1>
-          <p className="text-base text-[#4A5568] max-w-2xl leading-relaxed">
-            Figure out exactly what each member owes, how rotating Ajo pots work, and how fast you will reach your milestone. No guesswork.
+          <p className="text-base text-[#4A5568] max-w-xl leading-relaxed">
+            Figure out what each member contributes, how rotating Ajo pots disburse, and how fast you will reach your target amount.
           </p>
         </div>
 

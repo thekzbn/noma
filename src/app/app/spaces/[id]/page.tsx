@@ -42,7 +42,7 @@ function txStatusBadge(s: Transaction["status"]) {
   if (s === "pending")
     return (
       <span className="text-[#2B6AD0] font-medium" aria-label="Status: Pending">
-        ⏳ Pending
+        Pending
       </span>
     );
   return (
@@ -211,7 +211,7 @@ export default function SpaceDetailPage({
               href={`/campaign/${space.id}`}
               className="text-xs font-medium text-[#2B6AD0] hover:underline shrink-0"
             >
-              Open public campaign view ↗
+              Open public campaign view →
             </Link>
           )}
         </div>
@@ -335,7 +335,7 @@ export default function SpaceDetailPage({
                         {formatCurrency(req.amount, req.currency)}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-[#FFF3CD] text-[#856404]">
-                        ⏳ Pending
+                        Pending
                       </span>
                     </div>
                     <p className="text-sm text-[#4A5568] mt-1">{req.reason}</p>

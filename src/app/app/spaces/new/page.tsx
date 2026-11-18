@@ -89,7 +89,7 @@ function NewSpaceContent() {
   const [spaceType, setSpaceType] = useState<SpaceType>(initialType);
   const [form, setForm] = useState<FormData>(() => ({
     ...EMPTY_FORM,
-    currency: currencyParam || EMPTY_FORM.currency,
+    currency: currencyParam || state.defaultCurrency || EMPTY_FORM.currency,
     targetAmount: targetParam || EMPTY_FORM.targetAmount,
     name: nameParam || EMPTY_FORM.name,
   }));
@@ -366,8 +366,8 @@ function NewSpaceContent() {
                   onChange={handleChange}
                   options={[
                     { value: "NGN", label: "NGN (₦)" },
-                    { value: "GBP", label: "GBP (£)" },
                     { value: "USD", label: "USD ($)" },
+                    { value: "GBP", label: "GBP (£)" },
                     { value: "EUR", label: "EUR (€)" },
                   ]}
                 />

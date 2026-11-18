@@ -36,6 +36,7 @@ export interface AppState {
   toasts: ToastMessage[];
   onboardingDone: boolean;
   onboardingSelectedTypes?: string[];
+  defaultCurrency: string;
 }
 
 type Action =
@@ -54,11 +55,12 @@ type Action =
     }
   | { type: "SHOW_TOAST"; payload: ToastMessage }
   | { type: "DISMISS_TOAST"; payload: string }
-  | { type: "COMPLETE_ONBOARDING"; payload?: { selectedTypes?: string[] } };
+  | { type: "COMPLETE_ONBOARDING"; payload?: { selectedTypes?: string[] } }
+  | { type: "SET_DEFAULT_CURRENCY"; payload: string };
 
 // ---- Initial state ----
 
-const STORAGE_KEY = "noma_app_state_v1";
+const STORAGE_KEY = "noma_app_state_v2";
 
 const defaultInitialState: AppState = {
   user: null,
@@ -66,6 +68,7 @@ const defaultInitialState: AppState = {
   toasts: [],
   onboardingDone: false,
   onboardingSelectedTypes: ["personal"],
+  defaultCurrency: "NGN",
 };
 
 // ---- Reducer ----
@@ -91,6 +94,8 @@ function reducer(state: AppState, action: Action): AppState {
           s.id === action.payload.id ? action.payload : s
         ),
       };
+    case "SET_DEFAULT_CURRENCY":
+      return { ...state, defaultCurrency: action.payload };
     case "APPROVE_PAYOUT": {
       const { spaceId, payoutId, approverName } = action.payload;
       return {
@@ -191,6 +196,7 @@ interface AppContextValue {
   showToast: (message: string, type?: ToastMessage["type"]) => void;
   dismissToast: (id: string) => void;
   completeOnboarding: (selectedTypes?: string[]) => void;
+  setDefaultCurrency: (currency: string) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -214,10 +220,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Save changes to localStorage
   useEffect(() => {
     try {
-      const { user, spaces, onboardingDone, onboardingSelectedTypes } = state;
+      const { user, spaces, onboardingDone, onboardingSelectedTypes, defaultCurrency } = state;
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ user, spaces, onboardingDone, onboardingSelectedTypes })
+        JSON.stringify({ user, spaces, onboardingDone, onboardingSelectedTypes, defaultCurrency })
       );
     } catch {
       // Ignore localStorage quotas / private browsing errors
@@ -238,6 +244,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSpace = useCallback((space: Space) => {
     dispatch({ type: "UPDATE_SPACE", payload: space });
+  }, []);
+
+  const setDefaultCurrency = useCallback((currency: string) => {
+    dispatch({ type: "SET_DEFAULT_CURRENCY", payload: currency });
   }, []);
 
   const approvePayout = useCallback(
@@ -289,6 +299,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showToast,
         dismissToast,
         completeOnboarding,
+        setDefaultCurrency,
       }}
     >
       {children}
@@ -316,6 +327,11 @@ export function useSpaces() {
 export function useToasts() {
   const { state, showToast, dismissToast } = useApp();
   return { toasts: state.toasts, showToast, dismissToast };
+}
+
+export function useDefaultCurrency() {
+  const { state, setDefaultCurrency } = useApp();
+  return { defaultCurrency: state.defaultCurrency || "NGN", setDefaultCurrency };
 }
 
 // ID generator for new spaces

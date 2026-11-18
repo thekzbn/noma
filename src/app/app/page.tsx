@@ -93,7 +93,7 @@ export default function AppHomePage() {
       ? currencyList
           .map(([curr, amt]) => formatCurrency(amt, curr))
           .join(" · ")
-      : "£0";
+      : formatCurrency(0, state.defaultCurrency || "NGN");
 
   return (
     <AppShell>

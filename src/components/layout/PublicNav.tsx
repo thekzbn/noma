@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/lib/store";
+import { CurrencySelector } from "@/components/ui/CurrencySelector";
 
 export function PublicNav() {
   const { user } = useAuth();
@@ -50,8 +51,10 @@ export function PublicNav() {
           </Link>
         </nav>
 
-        {/* CTA */}
+        {/* Currency Switcher & CTA */}
         <div className="hidden sm:flex items-center gap-3">
+          <CurrencySelector compact />
+
           {user ? (
             <Link
               href="/app"
@@ -77,26 +80,29 @@ export function PublicNav() {
           )}
         </div>
 
-        {/* Mobile menu button (min 44px tap target) */}
-        <button
-          className="sm:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {menuOpen ? (
-              <path d="M18 6L6 18M6 6l12 12" />
-            ) : (
-              <>
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </>
-            )}
-          </svg>
-        </button>
+        {/* Mobile controls */}
+        <div className="sm:hidden flex items-center gap-2">
+          <CurrencySelector compact />
+          <button
+            className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {menuOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}

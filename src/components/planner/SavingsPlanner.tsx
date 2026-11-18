@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { formatCurrency } from "@/lib/demo-data";
+import { formatCurrency, SUPPORTED_CURRENCIES } from "@/lib/demo-data";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { useDefaultCurrency } from "@/lib/store";
 
 interface SavingsPlannerProps {
   initialCurrency?: string;
@@ -11,15 +12,24 @@ interface SavingsPlannerProps {
 }
 
 export function SavingsPlanner({
-  initialCurrency = "NGN",
+  initialCurrency,
   className = "",
 }: SavingsPlannerProps) {
+  const { defaultCurrency } = useDefaultCurrency();
   const [goalType, setGoalType] = useState<"group" | "personal">("group");
-  const [targetAmount, setTargetAmount] = useState<number>(1200000);
-  const [currency, setCurrency] = useState<string>(initialCurrency);
+  const [currency, setCurrency] = useState<string>(initialCurrency || defaultCurrency || "NGN");
+  const [prevInitialCurrency, setPrevInitialCurrency] = useState<string | undefined>(initialCurrency);
+  const [targetAmount, setTargetAmount] = useState<number>(() =>
+    (initialCurrency || defaultCurrency || "NGN") === "NGN" ? 1200000 : 3000
+  );
   const [membersCount, setMembersCount] = useState<number>(6);
   const [durationMonths, setDurationMonths] = useState<number>(6);
   const [frequency, setFrequency] = useState<"monthly" | "biweekly" | "weekly">("monthly");
+
+  if (initialCurrency && initialCurrency !== prevInitialCurrency) {
+    setPrevInitialCurrency(initialCurrency);
+    setCurrency(initialCurrency);
+  }
 
   const cyclesPerMonth = frequency === "weekly" ? 4 : frequency === "biweekly" ? 2 : 1;
   const totalCycles = durationMonths * cyclesPerMonth;
@@ -30,8 +40,6 @@ export function SavingsPlanner({
     const cycles = Math.max(1, totalCycles);
 
     if (goalType === "group") {
-      // If rotating Ajo circle: each cycle one member takes the full pot
-      // Full pot = targetAmount / people or total pool collected per cycle = targetAmount / durationMonths
       const amountPerPersonPerCycle = Math.round(targetAmount / (people * cycles));
       const poolCollectedPerCycle = amountPerPersonPerCycle * people;
       const totalPerPerson = amountPerPersonPerCycle * cycles;
@@ -55,12 +63,11 @@ export function SavingsPlanner({
     }
   }, [goalType, targetAmount, membersCount, totalCycles]);
 
-  // Adjust default numbers when switching currency
   function handleCurrencyChange(newCurr: string) {
     setCurrency(newCurr);
     if (newCurr === "NGN" && targetAmount < 50000) {
       setTargetAmount(1200000);
-    } else if ((newCurr === "GBP" || newCurr === "USD" || newCurr === "EUR") && targetAmount > 50000) {
+    } else if (newCurr !== "NGN" && targetAmount > 50000) {
       setTargetAmount(3000);
     }
   }
@@ -77,32 +84,29 @@ export function SavingsPlanner({
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-[#E2E8F0]">
         <div>
-          <span className="text-xs font-bold tracking-wider uppercase text-[#2B6AD0] bg-[#EBF2FC] px-2.5 py-1 rounded-full">
-            Interactive Tool
-          </span>
-          <h2 className="text-2xl font-bold text-[#061E47] tracking-tight mt-2">
-            Noma Savings &amp; Ajo Planner
+          <h2 className="text-xl sm:text-2xl font-bold text-[#061E47] tracking-normal">
+            Savings and Ajo Planner
           </h2>
-          <p className="text-sm text-[#4A5568] mt-1">
-            Simulate your group cycles, individual contributions, and target pacing.
+          <p className="text-sm text-[#4A5568] mt-1 leading-relaxed">
+            Simulate group contribution quotas, individual targets, and timeline pacing.
           </p>
         </div>
 
-        {/* Currency Switcher */}
+        {/* Currency Switcher: Naira first, Dollar second, then Pound, Euro */}
         <div className="flex items-center gap-1.5 p-1 bg-[#F7F9FC] border border-[#E2E8F0] rounded-lg self-start sm:self-auto">
-          {["NGN", "GBP", "USD", "EUR"].map((curr) => (
+          {SUPPORTED_CURRENCIES.map((c) => (
             <button
-              key={curr}
+              key={c.code}
               type="button"
-              onClick={() => handleCurrencyChange(curr)}
+              onClick={() => handleCurrencyChange(c.code)}
               className={[
                 "px-2.5 py-1 text-xs font-semibold rounded-md transition-colors",
-                currency === curr
+                currency === c.code
                   ? "bg-[#1F4591] text-white shadow-xs"
                   : "text-[#4A5568] hover:text-[#061E47]",
               ].join(" ")}
             >
-              {curr}
+              {c.code}
             </button>
           ))}
         </div>
@@ -128,7 +132,7 @@ export function SavingsPlanner({
                 ].join(" ")}
               >
                 <div className="font-semibold text-sm text-[#061E47]">Group / Ajo</div>
-                <div className="text-xs text-[#718096] mt-0.5">Family, friends or rotation</div>
+                <div className="text-xs text-[#718096] mt-0.5">Family, friends, or rotation</div>
               </button>
 
               <button
@@ -317,7 +321,7 @@ export function SavingsPlanner({
           <div className="mt-8 pt-4 border-t border-[#E2E8F0]">
             <Link
               href={createSpaceUrl}
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#2B6AD0] text-white font-medium hover:bg-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2B6AD0]"
+              className="w-full inline-flex items-center justify-center gap-2 h-12 px-5 rounded-lg bg-[#2B6AD0] text-white font-medium hover:bg-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2B6AD0]"
             >
               Create space with this plan →
             </Link>

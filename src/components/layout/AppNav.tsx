@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/store";
 import { useState } from "react";
+import { CurrencySelector } from "@/components/ui/CurrencySelector";
 
 const NAV_LINKS = [
   { href: "/app", label: "Spaces", exact: true },
@@ -62,8 +63,10 @@ export function AppNav() {
           ))}
         </nav>
 
-        {/* User identity + sign out */}
-        <div className="hidden sm:flex items-center gap-5">
+        {/* Currency selector + User identity + sign out */}
+        <div className="hidden sm:flex items-center gap-4">
+          <CurrencySelector compact />
+
           {user && (
             <Link
               href="/app/account"
@@ -86,24 +89,27 @@ export function AppNav() {
         </div>
 
         {/* Mobile menu button (44px min target) */}
-        <button
-          className="sm:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
-          aria-expanded={menuOpen}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {menuOpen ? (
-              <path d="M18 6L6 18M6 6l12 12" />
-            ) : (
-              <>
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </>
-            )}
-          </svg>
-        </button>
+        <div className="sm:hidden flex items-center gap-2">
+          <CurrencySelector compact />
+          <button
+            className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#4A5568] rounded-lg hover:bg-[#F7F9FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {menuOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}

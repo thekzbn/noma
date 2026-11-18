@@ -13,7 +13,7 @@ function txStatusBadge(status: Transaction["status"]): React.ReactNode {
   if (status === "failed")
     return <span className="text-[#C0392B] font-medium">✕ Failed</span>;
   if (status === "pending")
-    return <span className="text-[#2B6AD0] font-medium">⏳ Pending</span>;
+    return <span className="text-[#2B6AD0] font-medium">Pending</span>;
   return <span className="text-[#718096] font-medium">— Expired</span>;
 }
 
