@@ -52,9 +52,13 @@ export default function SignUpPage() {
       return;
     }
     setLoading(true);
-    // Simulate async (no real backend)
+    // Simulate async
     await new Promise((r) => setTimeout(r, 800));
-    signIn({ id: "user-new", name: form.name, email: form.email });
+    signIn({
+      id: "user-" + Date.now(),
+      name: form.name.trim(),
+      email: form.email.trim(),
+    });
     router.push("/onboarding");
   }
 
@@ -115,7 +119,11 @@ export default function SignUpPage() {
             </Button>
           </form>
 
-          <p className="text-xs text-[#718096] mt-6 leading-relaxed">
+          <p className="text-xs text-[#856404] bg-[#FFF8E6] border border-[#F6D860] rounded-lg px-3 py-2 mt-6 leading-relaxed">
+            Demo prototype — signing up stores your session and spaces locally in your browser. No real backend is contacted.
+          </p>
+
+          <p className="text-xs text-[#718096] mt-4 leading-relaxed">
             By creating an account you agree to noma.&apos;s terms of service and
             privacy policy.
           </p>

@@ -91,6 +91,10 @@ function SignInForm() {
               Sign in
             </Button>
           </form>
+
+          <p className="text-xs text-[#856404] bg-[#FFF8E6] border border-[#F6D860] rounded-lg px-3 py-2 mt-6 leading-relaxed">
+            Demo mode — sign in with any email and password. No real account is created.
+          </p>
         </div>
       </main>
     </div>
@@ -99,7 +103,7 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FEFEFE]" />}>
+    <Suspense>
       <SignInForm />
     </Suspense>
   );

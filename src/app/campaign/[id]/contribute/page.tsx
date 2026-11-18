@@ -58,7 +58,7 @@ export default function CampaignContributePage({
 
   const currentSpace = space;
   const parsedAmount = parseFloat(amount);
-  const quickAmounts = [10, 25, 50, 100];
+  const quickAmounts = currentSpace.currency === "NGN" ? [5000, 10000, 25000, 50000] : [10, 25, 50, 100];
 
   function validateAmount(): boolean {
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -107,6 +107,12 @@ export default function CampaignContributePage({
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FEFEFE]">
+      <div
+        className="bg-[#FFF8E6] border-b border-[#F6D860] text-[#856404] text-xs text-center py-2 px-4"
+        role="status"
+      >
+        Prototype simulation — no payment card will be charged.
+      </div>
       <PublicNav />
       <main id="main-content" className="max-w-lg mx-auto px-5 py-12 flex-1 w-full">
         {/* Back Link */}
@@ -195,6 +201,7 @@ export default function CampaignContributePage({
                   key={opt}
                   className={[
                     "flex items-start gap-3.5 p-3.5 rounded-lg border cursor-pointer select-none transition-colors",
+                    "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#2B6AD0] has-[:focus-visible]:ring-offset-1",
                     identity === opt
                       ? "border-[#2B6AD0] bg-[#EBF2FC]"
                       : "border-[#CBD5E0] hover:border-[#68A4F1] bg-white",
@@ -218,7 +225,7 @@ export default function CampaignContributePage({
                     <div className="text-xs text-[#718096] mt-0.5">
                       {opt === "anonymous"
                         ? "Your contribution appears publicly as Anonymous."
-                        : "Your full name will be shown publicly in the donor ledger."}
+                        : "Your name will be shown publicly in the donor ledger."}
                     </div>
                   </div>
                 </label>
@@ -248,7 +255,7 @@ export default function CampaignContributePage({
                 placeholder="you@example.com"
                 value={contributorEmail}
                 onChange={(e) => setContributorEmail(e.target.value)}
-                hint="We will send your payment receipt to this address."
+                hint="We will record a mock digital receipt."
               />
             </div>
 
@@ -276,7 +283,7 @@ export default function CampaignContributePage({
               Select payment method
             </h1>
             <p className="text-sm text-[#4A5568] mb-8">
-              All transactions are encrypted and processed through verified payment providers.
+              Choose how you want to simulate this contribution.
             </p>
 
             <fieldset className="mb-8 border-none p-0">
@@ -286,23 +293,24 @@ export default function CampaignContributePage({
                   {
                     id: "card",
                     title: "Debit or credit card",
-                    desc: "Visa, Mastercard, American Express, Verve",
+                    desc: "Visa, Mastercard, Verve",
                   },
                   {
                     id: "bank",
                     title: "Instant bank transfer",
-                    desc: "Direct bank authorization via open banking",
+                    desc: "Simulated direct bank transfer",
                   },
                   {
                     id: "wallet",
                     title: "Apple Pay or Google Pay",
-                    desc: "Fast, contactless checkout from your device",
+                    desc: "Simulated mobile wallet",
                   },
                 ].map((m) => (
                   <label
                     key={m.id}
                     className={[
                       "flex items-start gap-3.5 p-3.5 rounded-lg border cursor-pointer select-none transition-colors",
+                      "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#2B6AD0] has-[:focus-visible]:ring-offset-1",
                       paymentMethod === m.id
                         ? "border-[#2B6AD0] bg-[#EBF2FC]"
                         : "border-[#CBD5E0] hover:border-[#68A4F1] bg-white",
@@ -346,7 +354,7 @@ export default function CampaignContributePage({
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-6">
               Review contribution
             </h1>
-            <dl className="divide-y divide-[#E2E8F0] mb-8">
+            <dl className="divide-y divide-[#E2E8F0] mb-6">
               {[
                 ["Campaign", space.name],
                 ["Contribution amount", formatCurrency(parsedAmount, space.currency)],
@@ -370,15 +378,15 @@ export default function CampaignContributePage({
                 </div>
               ))}
             </dl>
-            <p className="text-xs text-[#718096] mb-8 leading-relaxed">
-              By confirming, your contribution will be processed and credited directly to the campaign.
+            <p className="text-xs text-[#856404] bg-[#FFF8E6] border border-[#F6D860] rounded-lg px-3 py-2 mb-8 leading-relaxed">
+              Simulation notice: Clicking below will record this contribution in the demo ledger. No money is moved.
             </p>
             <div className="flex gap-3">
               <Button variant="secondary" onClick={() => setStep("payment")}>
                 Back
               </Button>
               <Button variant="primary" fullWidth onClick={simulatePayment}>
-                Confirm and pay
+                Record simulated contribution
               </Button>
             </div>
           </div>
@@ -386,25 +394,25 @@ export default function CampaignContributePage({
 
         {/* STEP: Processing */}
         {step === "processing" && (
-          <div className="text-center py-16">
-            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" />
+          <div className="text-center py-16" role="status" aria-live="polite">
+            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" aria-hidden="true" />
             <p className="text-base font-semibold text-[#061E47]">
-              Authorising contribution
+              Recording contribution
             </p>
           </div>
         )}
 
         {/* STEP: Confirmed */}
         {step === "confirmed" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#2D7D4E] flex items-center justify-center font-bold text-xl mb-6">
+          <div className="py-8" role="status" aria-live="polite">
+            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#1E7A45] flex items-center justify-center font-bold text-xl mb-6" aria-hidden="true">
               ✓
             </div>
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
-              Contribution confirmed
+              Contribution recorded
             </h1>
             <p className="text-sm text-[#4A5568] mb-8">
-              Your contribution of {formatCurrency(parsedAmount, space.currency)} to {space.name} has been completed.
+              Your contribution of {formatCurrency(parsedAmount, space.currency)} to {space.name} has been recorded in this demo session.
             </p>
             <dl className="divide-y divide-[#E2E8F0] mb-8">
               {[
@@ -432,28 +440,10 @@ export default function CampaignContributePage({
           </div>
         )}
 
-        {/* STEP: Pending */}
-        {step === "pending" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#FFF8E6] text-[#856404] flex items-center justify-center font-bold text-xl mb-6">
-              ⏱
-            </div>
-            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
-              Payment pending verification
-            </h1>
-            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
-              Your contribution has been submitted. As soon as the transaction settles, the campaign ledger will update automatically.
-            </p>
-            <Link href={`/campaign/${id}`}>
-              <Button variant="secondary">Back to campaign</Button>
-            </Link>
-          </div>
-        )}
-
         {/* STEP: Failed */}
         {step === "failed" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#FF6347] flex items-center justify-center font-bold text-xl mb-6">
+          <div className="py-8" role="alert">
+            <div className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#C0392B] flex items-center justify-center font-bold text-xl mb-6" aria-hidden="true">
               ✕
             </div>
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">

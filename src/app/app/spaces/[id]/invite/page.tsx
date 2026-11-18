@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSpaces } from "@/lib/store";
 import { AppShell } from "@/components/layout/AppShell";
@@ -57,6 +57,13 @@ export default function InvitePage({
     canApprovePayouts: false,
   });
 
+  const activePermsList = useMemo(() => {
+    return Object.entries(permissions)
+      .filter(([, v]) => v)
+      .map(([k]) => k)
+      .join(",");
+  }, [permissions]);
+
   if (!space) {
     return (
       <AppShell>
@@ -72,8 +79,8 @@ export default function InvitePage({
 
   const inviteLink =
     typeof window !== "undefined"
-      ? `${window.location.origin}/invite/inv-${id}`
-      : `/invite/inv-${id}`;
+      ? `${window.location.origin}/invite/inv-${id}?perms=${activePermsList}`
+      : `/invite/inv-${id}?perms=${activePermsList}`;
 
   async function handleCopy() {
     try {
@@ -114,17 +121,17 @@ export default function InvitePage({
         </p>
 
         {/* Permissions */}
-        <section className="mt-10 mb-12">
+        <section className="mt-8 mb-10">
           <div className="mb-4">
             <h2 className="text-base font-semibold text-[#061E47]">
               Permissions for invitees
             </h2>
             <p className="text-xs text-[#718096] mt-1">
-              Invitees will see these conditions before accepting the invitation.
+              Invitees will see these exact conditions before accepting the invitation.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map((key) => {
               const { label, hint } = PERMISSION_LABELS[key];
               const isLocked = key === "canView";
@@ -151,9 +158,9 @@ export default function InvitePage({
         </section>
 
         {/* Invite link */}
-        <section className="mt-12">
+        <section className="mt-8">
           <h2 className="text-base font-semibold text-[#061E47] mb-3">
-            Invite link
+            Generated invite link
           </h2>
           <div className="flex items-center gap-3 p-3 bg-[#F7F9FC] border border-[#CBD5E0] rounded-lg mb-2">
             <span className="flex-1 text-xs font-mono text-[#061E47] break-all select-all">
@@ -164,12 +171,12 @@ export default function InvitePage({
             </Button>
           </div>
           {copyFailed && (
-            <p className="text-xs text-[#FF6347] mb-2" role="alert">
+            <p className="text-xs text-[#C0392B] mb-2" role="alert">
               Could not copy automatically. Please select and copy the link text above.
             </p>
           )}
           <p className="text-xs text-[#718096] leading-relaxed">
-            Anyone with this link can view the invitation preview. They will need a noma. account to accept and join.
+            Anyone with this link will see the permissions you selected before accepting. They will need a noma. account to join.
           </p>
         </section>
       </div>

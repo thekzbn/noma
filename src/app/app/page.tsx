@@ -13,8 +13,11 @@ import {
   type Space,
 } from "@/lib/demo-data";
 
+const DEMO_SPACE_IDS = new Set(["space-1", "space-2", "space-3", "campaign-1"]);
+
 function SpaceRow({ space }: { space: Space }) {
   const pct = progressPercent(space.savedAmount, space.targetAmount);
+  const isDemo = DEMO_SPACE_IDS.has(space.id);
   return (
     <Link
       href={`/app/spaces/${space.id}`}
@@ -22,9 +25,16 @@ function SpaceRow({ space }: { space: Space }) {
     >
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 sm:gap-6 mb-3">
         <div className="min-w-0">
-          <h3 className="font-semibold text-[#061E47] text-lg group-hover:text-[#2B6AD0] transition-colors">
-            {space.name}
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold text-[#061E47] text-lg group-hover:text-[#2B6AD0] transition-colors">
+              {space.name}
+            </h3>
+            {isDemo && (
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#F7F9FC] border border-[#E2E8F0] text-[#718096]">
+                Demo
+              </span>
+            )}
+          </div>
           <p className="text-sm text-[#718096] mt-0.5 line-clamp-1">
             {spaceTypeLabel(space.type)} &middot; {space.purpose}
           </p>
@@ -40,7 +50,12 @@ function SpaceRow({ space }: { space: Space }) {
         </div>
       </div>
 
-      <ProgressBar value={pct} showLabel={false} size="sm" />
+      <ProgressBar
+        value={pct}
+        showLabel={false}
+        size="sm"
+        ariaLabel={`${space.name}: ${pct}% saved`}
+      />
     </Link>
   );
 }
@@ -78,7 +93,7 @@ export default function AppHomePage() {
       ? currencyList
           .map(([curr, amt]) => formatCurrency(amt, curr))
           .join(" · ")
-      : "£0";
+      : formatCurrency(0, state.defaultCurrency || "NGN");
 
   return (
     <AppShell>
@@ -106,9 +121,12 @@ export default function AppHomePage() {
       {/* Savings spaces list */}
       {mySpaces.length === 0 ? (
         <div className="py-16 text-center border border-dashed border-[#CBD5E0] rounded-xl px-4">
-          <h2 className="text-lg font-semibold text-[#061E47] mb-2">No active savings spaces</h2>
-          <p className="text-sm text-[#718096] mb-6 max-w-sm mx-auto">
-            Create a space for what matters: a holiday, emergency savings, or an Ajo circle.
+          <h2 className="text-lg font-semibold text-[#061E47] mb-2">No active savings spaces yet</h2>
+          <p className="text-sm text-[#718096] mb-2 max-w-sm mx-auto">
+            Create a space for what matters — a holiday, emergency fund, or an Ajo circle.
+          </p>
+          <p className="text-xs text-[#718096] mb-6 max-w-sm mx-auto">
+            Once created, you can invite members, agree rules, and start recording contributions.
           </p>
           <Button variant="primary" onClick={() => router.push("/app/spaces/new")}>
             Create your first space

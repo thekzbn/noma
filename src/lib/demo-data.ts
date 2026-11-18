@@ -111,23 +111,30 @@ export interface InvitationPreview {
   expiresAt: string;
 }
 
-// --- SAMPLE SPACES ---
+export const SUPPORTED_CURRENCIES = [
+  { code: "NGN", symbol: "₦", label: "NGN (₦)", name: "Nigerian Naira" },
+  { code: "USD", symbol: "$", label: "USD ($)", name: "US Dollar" },
+  { code: "GBP", symbol: "£", label: "GBP (£)", name: "British Pound" },
+  { code: "EUR", symbol: "€", label: "EUR (€)", name: "Euro" },
+];
+
+// --- SAMPLE SPACES (Nigerian Naira as primary default, USD as secondary) ---
 
 export const DEMO_SPACES: Space[] = [
   {
     id: "space-1",
-    name: "New laptop fund",
+    name: "MacBook Pro fund",
     type: "personal",
-    purpose: "Save for a MacBook Pro for design work",
-    targetAmount: 2500,
-    savedAmount: 1340,
-    currency: "GBP",
+    purpose: "Save for a 16-inch M3 MacBook Pro for design work",
+    targetAmount: 2800000,
+    savedAmount: 1450000,
+    currency: "NGN",
     targetDate: "2027-03-01",
     createdAt: "2026-09-01",
     status: "active",
     rules: [
-      "No early withdrawals before target date",
-      "Minimum £100 per month",
+      "No withdrawals before reaching the target amount",
+      "Minimum ₦100,000 contribution each month",
     ],
     members: [
       {
@@ -164,8 +171,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-1",
         date: "2026-11-01",
         type: "contribution",
-        amount: 150,
-        currency: "GBP",
+        amount: 250000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-me",
         memberName: "You",
@@ -175,8 +182,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-2",
         date: "2026-10-01",
         type: "contribution",
-        amount: 150,
-        currency: "GBP",
+        amount: 200000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-me",
         memberName: "You",
@@ -186,8 +193,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-3",
         date: "2026-09-01",
         type: "contribution",
-        amount: 1040,
-        currency: "GBP",
+        amount: 1000000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-me",
         memberName: "You",
@@ -199,19 +206,19 @@ export const DEMO_SPACES: Space[] = [
   },
   {
     id: "space-2",
-    name: "Lagos family trip",
+    name: "Lagos family holiday fund",
     type: "shared",
-    purpose: "Annual family holiday to Lagos, covering flights and accommodation",
-    targetAmount: 6000,
-    savedAmount: 2200,
-    currency: "GBP",
+    purpose: "Family holiday to Lagos covering flights, lodging, and logistics",
+    targetAmount: 6000000,
+    savedAmount: 2400000,
+    currency: "NGN",
     targetDate: "2027-07-01",
     createdAt: "2026-10-10",
     status: "active",
     rules: [
-      "Each person contributes £300 monthly",
-      "Withdrawals require agreement from all members",
-      "Funds only used for the stated trip",
+      "Each family member contributes ₦300,000 monthly",
+      "Payouts require agreement from all members",
+      "Funds used exclusively for confirmed trip bookings",
     ],
     members: [
       {
@@ -262,8 +269,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-4",
         date: "2026-11-01",
         type: "contribution",
-        amount: 300,
-        currency: "GBP",
+        amount: 300000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-me",
         memberName: "You",
@@ -273,8 +280,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-5",
         date: "2026-11-01",
         type: "contribution",
-        amount: 300,
-        currency: "GBP",
+        amount: 300000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-3",
         memberName: "Chukwuemeka Obi",
@@ -284,8 +291,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-6",
         date: "2026-11-01",
         type: "contribution",
-        amount: 300,
-        currency: "GBP",
+        amount: 300000,
+        currency: "NGN",
         status: "pending",
         memberId: "member-4",
         memberName: "Ngozi Obi",
@@ -296,23 +303,23 @@ export const DEMO_SPACES: Space[] = [
   },
   {
     id: "space-3",
-    name: "Islington Ajo circle",
+    name: "Lagos Mainland Ajo circle",
     type: "community",
     purpose:
-      "Monthly rotating savings group. Each cycle, one member receives the full pot.",
-    targetAmount: 12000,
-    savedAmount: 4000,
-    currency: "GBP",
+      "Monthly rotating savings circle. Each cycle, one member receives the full pooled pot.",
+    targetAmount: 12000000,
+    savedAmount: 4000000,
+    currency: "NGN",
     createdAt: "2026-06-01",
     status: "active",
     contributionCycle: "monthly",
-    cycleAmount: 500,
+    cycleAmount: 500000,
     governanceThreshold: 2,
     rules: [
-      "Each member contributes £500 on the 1st of every month",
-      "Payout order decided by ballot at group formation",
-      "Late contributions carry a £10 penalty agreed at formation",
-      "Missing two consecutive payments results in removal",
+      "Each member deposits ₦500,000 on the 1st of every month",
+      "Payout order decided by transparent ballot at circle formation",
+      "Late contributions incur an agreed ₦10,000 penalty",
+      "Two consecutive missed payments result in removal",
     ],
     members: [
       {
@@ -377,8 +384,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-7",
         date: "2026-11-01",
         type: "contribution",
-        amount: 500,
-        currency: "GBP",
+        amount: 500000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-me",
         memberName: "You",
@@ -388,8 +395,8 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-8",
         date: "2026-11-01",
         type: "contribution",
-        amount: 500,
-        currency: "GBP",
+        amount: 500000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-5",
         memberName: "Folake Adewale",
@@ -399,24 +406,24 @@ export const DEMO_SPACES: Space[] = [
         id: "tx-9",
         date: "2026-11-01",
         type: "contribution",
-        amount: 500,
-        currency: "GBP",
+        amount: 500000,
+        currency: "NGN",
         status: "failed",
         memberId: "member-6",
         memberName: "Babatunde Eze",
-        note: "Payment declined. Contact Babatunde.",
+        note: "Bank transfer declined. Contact Babatunde.",
         reference: "NMA-TX-0009",
       },
       {
         id: "tx-10",
         date: "2026-11-01",
         type: "payout",
-        amount: 2000,
-        currency: "GBP",
+        amount: 2000000,
+        currency: "NGN",
         status: "completed",
         memberId: "member-5",
         memberName: "Folake Adewale",
-        note: "Cycle 2 payout: Folake's turn",
+        note: "Cycle 2 payout: Folake's scheduled turn",
         reference: "NMA-TX-0010",
       },
     ],
@@ -425,15 +432,85 @@ export const DEMO_SPACES: Space[] = [
         id: "pr-1",
         requestedBy: "Ifeoma Nwosu",
         requestedAt: "2026-11-15",
-        amount: 2000,
-        currency: "GBP",
-        destination: "Ifeoma's bank account (ending 4821)",
+        amount: 2000000,
+        currency: "NGN",
+        destination: "First Bank Nigeria (ending 4821)",
         reason: "Cycle 3 payout: Ifeoma's scheduled turn",
         status: "pending",
         approvalsRequired: 2,
         approvalsReceived: ["member-me"],
       },
     ],
+  },
+  {
+    id: "space-4",
+    name: "Diaspora emergency fund",
+    type: "shared",
+    purpose: "Dollar-denominated emergency pool for cross-border family support",
+    targetAmount: 5000,
+    savedAmount: 3200,
+    currency: "USD",
+    createdAt: "2026-08-15",
+    status: "active",
+    rules: [
+      "Members contribute $100 or more monthly",
+      "Payouts require two-party confirmation",
+    ],
+    members: [
+      {
+        id: "member-me",
+        name: "You",
+        email: "you@example.com",
+        role: "owner",
+        joinedAt: "2026-08-15",
+        permissions: {
+          canView: true,
+          canContribute: true,
+          canInvite: true,
+          canApprovePayouts: true,
+          canRequestPayouts: true,
+        },
+      },
+      {
+        id: "member-8",
+        name: "Tunde Williams",
+        email: "tunde@demo.example",
+        role: "contributor",
+        joinedAt: "2026-08-20",
+        permissions: {
+          canView: true,
+          canContribute: true,
+          canInvite: true,
+          canApprovePayouts: true,
+          canRequestPayouts: true,
+        },
+      },
+    ],
+    transactions: [
+      {
+        id: "tx-11",
+        date: "2026-11-01",
+        type: "contribution",
+        amount: 500,
+        currency: "USD",
+        status: "completed",
+        memberId: "member-me",
+        memberName: "You",
+        reference: "NMA-TX-0011",
+      },
+      {
+        id: "tx-12",
+        date: "2026-11-02",
+        type: "contribution",
+        amount: 500,
+        currency: "USD",
+        status: "completed",
+        memberId: "member-8",
+        memberName: "Tunde Williams",
+        reference: "NMA-TX-0012",
+      },
+    ],
+    payoutRequests: [],
   },
 ];
 
@@ -444,10 +521,10 @@ export const DEMO_CAMPAIGN: Space = {
   name: "Rebuild Oyo school library",
   type: "campaign",
   purpose:
-    "We are raising funds to restore and restock the library at Government Secondary School, Oyo. The building was damaged in last year's flood. Books, shelving, and electrical work are all needed.",
-  targetAmount: 15000,
-  savedAmount: 9240,
-  currency: "GBP",
+    "We are raising funds to restore and restock the library at Government Secondary School, Oyo. The building was damaged in last year's flood. Books, shelving, and electrical repairs are all needed.",
+  targetAmount: 15000000,
+  savedAmount: 9240000,
+  currency: "NGN",
   endDate: "2027-01-31",
   createdAt: "2026-10-01",
   status: "active",
@@ -477,40 +554,40 @@ export const DEMO_CAMPAIGN: Space = {
     {
       id: "d-1",
       displayName: "Anonymous",
-      amount: 100,
-      currency: "GBP",
+      amount: 100000,
+      currency: "NGN",
       date: "2026-11-16",
       status: "completed",
     },
     {
       id: "d-2",
       displayName: "Taiwo Adesanya",
-      amount: 250,
-      currency: "GBP",
+      amount: 250000,
+      currency: "NGN",
       date: "2026-11-15",
       status: "completed",
     },
     {
       id: "d-3",
       displayName: "Anonymous",
-      amount: 50,
-      currency: "GBP",
+      amount: 50000,
+      currency: "NGN",
       date: "2026-11-14",
       status: "completed",
     },
     {
       id: "d-4",
       displayName: "Kemi Oduola",
-      amount: 500,
-      currency: "GBP",
+      amount: 500000,
+      currency: "NGN",
       date: "2026-11-13",
       status: "completed",
     },
     {
       id: "d-5",
       displayName: "Anonymous",
-      amount: 75,
-      currency: "GBP",
+      amount: 75000,
+      currency: "NGN",
       date: "2026-11-12",
       status: "completed",
     },
@@ -523,16 +600,16 @@ export const DEMO_INVITATIONS: Record<string, InvitationPreview> = {
   "inv-abc123": {
     token: "inv-abc123",
     spaceId: "space-2",
-    spaceName: "Lagos family trip",
+    spaceName: "Lagos family holiday fund",
     spaceType: "shared",
     purpose:
-      "Annual family holiday to Lagos, covering flights and accommodation",
+      "Family holiday to Lagos covering flights, lodging, and logistics",
     invitedBy: "Chukwuemeka Obi",
     invitedByEmail: "emeka@demo.example",
     rules: [
-      "Each person contributes £300 monthly",
-      "Withdrawals require agreement from all members",
-      "Funds only used for the stated trip",
+      "Each family member contributes ₦300,000 monthly",
+      "Payouts require agreement from all members",
+      "Funds used exclusively for confirmed trip bookings",
     ],
     permissionsRequested: {
       canView: true,
@@ -545,17 +622,17 @@ export const DEMO_INVITATIONS: Record<string, InvitationPreview> = {
   "inv-ajo-001": {
     token: "inv-ajo-001",
     spaceId: "space-3",
-    spaceName: "Islington Ajo circle",
+    spaceName: "Lagos Mainland Ajo circle",
     spaceType: "community",
     purpose:
-      "Monthly rotating savings group. Each cycle, one member receives the full pot.",
+      "Monthly rotating savings circle. Each cycle, one member receives the full pooled pot.",
     invitedBy: "You",
     invitedByEmail: "you@example.com",
     rules: [
-      "Each member contributes £500 on the 1st of every month",
-      "Payout order decided by ballot at group formation",
-      "Late contributions carry a £10 penalty agreed at formation",
-      "Missing two consecutive payments results in removal",
+      "Each member deposits ₦500,000 on the 1st of every month",
+      "Payout order decided by transparent ballot at circle formation",
+      "Late contributions incur an agreed ₦10,000 penalty",
+      "Two consecutive missed payments result in removal",
     ],
     permissionsRequested: {
       canView: true,
@@ -569,10 +646,26 @@ export const DEMO_INVITATIONS: Record<string, InvitationPreview> = {
 
 export function getInvitationPreview(
   token: string,
-  spaces: Space[]
+  spaces: Space[],
+  customPerms?: {
+    canView?: boolean;
+    canContribute?: boolean;
+    canInvite?: boolean;
+    canApprovePayouts?: boolean;
+  }
 ): InvitationPreview | null {
   if (DEMO_INVITATIONS[token]) {
-    return DEMO_INVITATIONS[token];
+    const base = DEMO_INVITATIONS[token];
+    if (customPerms) {
+      return {
+        ...base,
+        permissionsRequested: {
+          ...base.permissionsRequested,
+          ...customPerms,
+        },
+      };
+    }
+    return base;
   }
 
   const cleanId = token.startsWith("inv-") ? token.slice(4) : token;
@@ -592,9 +685,9 @@ export function getInvitationPreview(
       rules: matchedSpace.rules,
       permissionsRequested: {
         canView: true,
-        canContribute: true,
-        canInvite: false,
-        canApprovePayouts: false,
+        canContribute: customPerms?.canContribute ?? true,
+        canInvite: customPerms?.canInvite ?? false,
+        canApprovePayouts: customPerms?.canApprovePayouts ?? false,
       },
       expiresAt: "2027-12-31",
     };
@@ -605,12 +698,28 @@ export function getInvitationPreview(
 
 // Helpers
 export function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-GB", {
+  const localeMap: Record<string, string> = {
+    NGN: "en-NG",
+    USD: "en-US",
+    GBP: "en-GB",
+    EUR: "en-IE",
+  };
+  const locale = localeMap[currency] || "en-NG";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+export function formatDate(iso: string): string {
+  const d = new Date(iso.length === 10 ? iso + "T00:00:00" : iso);
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function progressPercent(saved: number, target: number): number {

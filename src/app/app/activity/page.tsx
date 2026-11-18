@@ -4,14 +4,17 @@ import { AppShell } from "@/components/layout/AppShell";
 import { useApp } from "@/lib/store";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, statusLabel, type Transaction } from "@/lib/demo-data";
+import { formatCurrency, formatDate, type Transaction } from "@/lib/demo-data";
 import { useRouter } from "next/navigation";
 
-function txStatusClass(status: Transaction["status"]): string {
-  if (status === "completed") return "text-[#3CB371]";
-  if (status === "failed") return "text-[#FF6347]";
-  if (status === "pending") return "text-[#2B6AD0]";
-  return "text-[#718096]";
+function txStatusBadge(status: Transaction["status"]): React.ReactNode {
+  if (status === "completed")
+    return <span className="text-[#1E7A45] font-medium">✓ Completed</span>;
+  if (status === "failed")
+    return <span className="text-[#C0392B] font-medium">✕ Failed</span>;
+  if (status === "pending")
+    return <span className="text-[#2B6AD0] font-medium">Pending</span>;
+  return <span className="text-[#718096] font-medium">— Expired</span>;
 }
 
 export default function ActivityPage() {
@@ -33,7 +36,6 @@ export default function ActivityPage() {
     );
   }
 
-  // Gather all transactions across all spaces, most recent first
   type TxWithSpace = Transaction & { spaceName: string; spaceId: string };
   const allTx: TxWithSpace[] = spaces
     .flatMap((s) =>
@@ -59,7 +61,12 @@ export default function ActivityPage() {
       {allTx.length === 0 ? (
         <div className="py-16 text-center border border-dashed border-[#CBD5E0] rounded-xl px-4">
           <p className="text-[#4A5568] text-base font-medium mb-1">No transaction records yet</p>
-          <p className="text-sm text-[#718096]">Activity will appear here as soon as you contribute to a space.</p>
+          <p className="text-sm text-[#718096] mb-6">
+            Activity will appear here once you contribute to a space.
+          </p>
+          <Button variant="primary" onClick={() => router.push("/app")}>
+            Go to your spaces
+          </Button>
         </div>
       ) : (
         <div className="flex flex-col">
@@ -68,7 +75,7 @@ export default function ActivityPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-base text-[#061E47] font-semibold capitalize leading-snug">
-                    {tx.type}{tx.memberName ? ` \u2013 ${tx.memberName}` : ""}
+                    {tx.type}{tx.memberName ? ` – ${tx.memberName}` : ""}
                   </p>
                   <p className="text-sm text-[#718096] mt-0.5">
                     <Link
@@ -77,25 +84,23 @@ export default function ActivityPage() {
                     >
                       {tx.spaceName}
                     </Link>
-                    {tx.note ? ` \u00b7 ${tx.note}` : ""}
+                    {tx.note ? ` · ${tx.note}` : ""}
                   </p>
                   <p className="text-xs text-[#A0AEC0] font-mono mt-1">
-                    {tx.reference} &middot; {tx.date}
+                    {tx.reference} &middot; {formatDate(tx.date)}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
                   <span
                     className={[
                       "text-base font-bold",
-                      tx.type === "contribution" ? "text-[#3CB371]" : "text-[#061E47]",
+                      tx.type === "contribution" ? "text-[#1E7A45]" : "text-[#061E47]",
                     ].join(" ")}
                   >
                     {tx.type === "contribution" ? "+" : "-"}
                     {formatCurrency(tx.amount, tx.currency)}
                   </span>
-                  <p className={`text-xs capitalize font-medium mt-0.5 ${txStatusClass(tx.status)}`}>
-                    {statusLabel(tx.status)}
-                  </p>
+                  <p className="text-xs mt-0.5">{txStatusBadge(tx.status)}</p>
                 </div>
               </div>
             </div>

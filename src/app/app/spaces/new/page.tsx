@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { useApp, generateSpaceId, useAuth } from "@/lib/store";
 import type { Space, SpaceType } from "@/lib/demo-data";
+import { formatDate } from "@/lib/demo-data";
 
 // ---- Step 1: Type selection ----
 
@@ -17,19 +18,19 @@ const SPACE_TYPES: { value: SpaceType; label: string; desc: string }[] = [
     desc: "Save towards a goal by yourself, with optional accountability access.",
   },
   {
-    value: "accountability",
-    label: "Accountability savings",
-    desc: "A personal goal with supporters you choose to keep you on track.",
-  },
-  {
     value: "shared",
     label: "Shared savings",
     desc: "Save together with family, friends, or colleagues towards a common goal.",
   },
   {
     value: "community",
-    label: "Community savings",
-    desc: "An Ajo, Esusu, or rotating pooled fund with custom governance rules.",
+    label: "Community savings (Ajo / Esusu)",
+    desc: "A rotating pooled fund or group circle with agreed member quotas and payout approvals.",
+  },
+  {
+    value: "accountability",
+    label: "Accountability savings",
+    desc: "A personal goal with supporters you choose to keep you on track.",
   },
   {
     value: "campaign",
@@ -56,7 +57,7 @@ const EMPTY_FORM: FormData = {
   name: "",
   purpose: "",
   targetAmount: "",
-  currency: "GBP",
+  currency: "NGN",
   targetDate: "",
   rules: "",
   contributionCycle: "monthly",
@@ -68,22 +69,43 @@ const EMPTY_FORM: FormData = {
 
 type Step = "type" | "details" | "confirm";
 
-export default function NewSpacePage() {
+function NewSpaceContent() {
   const router = useRouter();
-  const { addSpace, showToast } = useApp();
+  const searchParams = useSearchParams();
+  const { addSpace, showToast, state } = useApp();
   const { user } = useAuth();
+
+  const typeParam = searchParams.get("type") as SpaceType | null;
+  const targetParam = searchParams.get("target");
+  const currencyParam = searchParams.get("currency");
+  const nameParam = searchParams.get("name");
+
+  const initialType: SpaceType =
+    typeParam && SPACE_TYPES.some((t) => t.value === typeParam)
+      ? typeParam
+      : (state.onboardingSelectedTypes?.[0] as SpaceType) || "personal";
+
   const [step, setStep] = useState<Step>("type");
-  const [spaceType, setSpaceType] = useState<SpaceType | null>(null);
-  const [form, setForm] = useState<FormData>(EMPTY_FORM);
+  const [spaceType, setSpaceType] = useState<SpaceType>(initialType);
+  const [form, setForm] = useState<FormData>(() => ({
+    ...EMPTY_FORM,
+    currency: currencyParam || state.defaultCurrency || EMPTY_FORM.currency,
+    targetAmount: targetParam || EMPTY_FORM.targetAmount,
+    name: nameParam || EMPTY_FORM.name,
+  }));
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [loading, setLoading] = useState(false);
 
   if (!user) {
     return (
       <AppShell>
-        <p className="text-[#4A5568]">
-          <a href="/sign-in" className="text-[#2B6AD0]">Sign in</a> to create a space.
-        </p>
+        <div className="py-20 text-center max-w-sm mx-auto">
+          <h1 className="text-2xl font-semibold text-[#061E47] mb-3">Sign in required</h1>
+          <p className="text-[#4A5568] text-sm mb-6">You need to sign in to create a savings space.</p>
+          <Button variant="primary" fullWidth onClick={() => router.push("/sign-in?redirect=/app/spaces/new")}>
+            Sign in
+          </Button>
+        </div>
       </AppShell>
     );
   }
@@ -121,7 +143,7 @@ export default function NewSpacePage() {
 
   async function handleCreate() {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 600));
 
     const id = generateSpaceId();
     const rulesArr = form.rules
@@ -131,9 +153,9 @@ export default function NewSpacePage() {
 
     const newSpace: Space = {
       id,
-      name: form.name,
+      name: form.name.trim(),
       type: spaceType!,
-      purpose: form.purpose,
+      purpose: form.purpose.trim(),
       targetAmount: Number(form.targetAmount),
       savedAmount: 0,
       currency: form.currency,
@@ -165,7 +187,7 @@ export default function NewSpacePage() {
         governanceThreshold: Number(form.governanceThreshold),
       }),
       ...(spaceType === "campaign" && {
-        beneficiary: form.beneficiary,
+        beneficiary: form.beneficiary.trim(),
         endDate: form.targetDate || form.endDate || undefined,
         isPublic: true,
         donors: [],
@@ -173,7 +195,7 @@ export default function NewSpacePage() {
     };
 
     addSpace(newSpace);
-    showToast(`"${newSpace.name}" created.`, "success");
+    showToast(`"${newSpace.name}" created successfully.`, "success");
     router.push(`/app/spaces/${id}`);
   }
 
@@ -189,22 +211,29 @@ export default function NewSpacePage() {
               ? router.back()
               : setStep(step === "confirm" ? "details" : "type")
           }
-          className="text-sm text-[#2B6AD0] hover:text-[#1F4591] mb-4 flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+          className="text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] mb-4 flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
         >
           ← Back
         </button>
 
         {/* Progress */}
-        <div className="flex gap-1.5 mb-6" role="progressbar" aria-valuenow={stepIndex + 1} aria-valuemax={3}>
+        <div
+          className="flex gap-2 mb-6"
+          role="progressbar"
+          aria-label={`Step ${stepIndex + 1} of 3: ${["Type", "Details", "Confirm"][stepIndex]}`}
+          aria-valuenow={stepIndex + 1}
+          aria-valuemin={1}
+          aria-valuemax={3}
+        >
           {["Type", "Details", "Confirm"].map((label, i) => (
             <div key={label} className="flex-1">
               <div
                 className={[
-                  "h-1 rounded-full mb-1",
+                  "h-1.5 rounded-full mb-1 transition-colors",
                   i <= stepIndex ? "bg-[#2B6AD0]" : "bg-[#E2E8F0]",
                 ].join(" ")}
               />
-              <span className="text-xs text-[#718096]">{label}</span>
+              <span className="text-xs font-medium text-[#718096]">{label}</span>
             </div>
           ))}
         </div>
@@ -221,15 +250,16 @@ export default function NewSpacePage() {
           </p>
           <fieldset>
             <legend className="sr-only">Space type</legend>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2.5">
               {SPACE_TYPES.map((t) => (
                 <label
                   key={t.value}
                   className={[
                     "flex items-start gap-3 px-4 py-4 rounded-lg border cursor-pointer transition-colors",
+                    "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#2B6AD0] has-[:focus-visible]:ring-offset-1",
                     spaceType === t.value
                       ? "border-[#2B6AD0] bg-[#EBF2FC]"
-                      : "border-[#E2E8F0] hover:border-[#68A4F1]",
+                      : "border-[#E2E8F0] hover:border-[#68A4F1] bg-white",
                   ].join(" ")}
                 >
                   <input
@@ -242,14 +272,19 @@ export default function NewSpacePage() {
                   />
                   <span
                     className={[
-                      "w-4 h-4 rounded-full border-2 shrink-0 mt-0.5",
+                      "w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center transition-colors",
                       spaceType === t.value
                         ? "border-[#2B6AD0] bg-[#2B6AD0]"
-                        : "border-[#CBD5E0]",
+                        : "border-[#CBD5E0] bg-white",
                     ].join(" ")}
-                  />
+                    aria-hidden="true"
+                  >
+                    {spaceType === t.value && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    )}
+                  </span>
                   <div>
-                    <p className="text-sm font-medium text-[#061E47]">{t.label}</p>
+                    <p className="text-sm font-semibold text-[#061E47]">{t.label}</p>
                     <p className="text-xs text-[#718096] mt-0.5">{t.desc}</p>
                   </div>
                 </label>
@@ -285,7 +320,7 @@ export default function NewSpacePage() {
                 spaceType === "campaign"
                   ? "e.g. Rebuild Oyo school library"
                   : spaceType === "community"
-                  ? "e.g. Islington Ajo circle"
+                  ? "e.g. Lagos Mainland Ajo circle"
                   : "e.g. New laptop fund"
               }
             />
@@ -320,20 +355,20 @@ export default function NewSpacePage() {
                   value={form.targetAmount}
                   onChange={handleChange}
                   error={errors.targetAmount}
-                  placeholder="5000"
+                  placeholder="500000"
                 />
               </div>
-              <div className="w-28">
+              <div className="w-36">
                 <Select
                   label="Currency"
                   name="currency"
                   value={form.currency}
                   onChange={handleChange}
                   options={[
-                    { value: "GBP", label: "GBP" },
-                    { value: "NGN", label: "NGN" },
-                    { value: "USD", label: "USD" },
-                    { value: "EUR", label: "EUR" },
+                    { value: "NGN", label: "NGN (₦)" },
+                    { value: "USD", label: "USD ($)" },
+                    { value: "GBP", label: "GBP (£)" },
+                    { value: "EUR", label: "EUR (€)" },
                   ]}
                 />
               </div>
@@ -361,7 +396,7 @@ export default function NewSpacePage() {
                       value={form.cycleAmount}
                       onChange={handleChange}
                       error={errors.cycleAmount}
-                      placeholder="500"
+                      placeholder="50000"
                     />
                   </div>
                   <div className="w-36">
@@ -395,7 +430,11 @@ export default function NewSpacePage() {
               name="rules"
               value={form.rules}
               onChange={handleChange}
-              placeholder={"Each member contributes £300 monthly\nNo early withdrawals before target date"}
+              placeholder={
+                spaceType === "community"
+                  ? "Contributions due on the 1st of every month\nPayout order agreed at group formation\nLate contribution incurs a ₦1,000 penalty"
+                  : "Each member contributes regularly\nWithdrawals require agreement"
+              }
               hint="One rule per line. Members see these when they join."
             />
 
@@ -429,17 +468,20 @@ export default function NewSpacePage() {
                 value: `${form.currency} ${Number(form.targetAmount).toLocaleString()}`,
               },
               ...(form.targetDate
-                ? [{ label: spaceType === "campaign" ? "End date" : "Target date", value: form.targetDate }]
+                ? [{
+                    label: spaceType === "campaign" ? "End date" : "Target date",
+                    value: formatDate(form.targetDate),
+                  }]
                 : []),
               ...(spaceType === "community"
                 ? [
                     {
                       label: "Contribution",
-                      value: `${form.currency} ${form.cycleAmount} / ${form.contributionCycle}`,
+                      value: `${form.currency} ${Number(form.cycleAmount).toLocaleString()} / ${form.contributionCycle}`,
                     },
                     {
                       label: "Approvals required",
-                      value: form.governanceThreshold,
+                      value: `${form.governanceThreshold} members`,
                     },
                   ]
                 : []),
@@ -448,16 +490,16 @@ export default function NewSpacePage() {
                 : []),
             ].map(({ label, value }) => (
               <div key={label} className="flex gap-4 text-sm">
-                <dt className="text-[#718096] w-32 shrink-0">{label}</dt>
-                <dd className="text-[#061E47] font-medium">{value}</dd>
+                <dt className="text-[#718096] w-36 shrink-0">{label}</dt>
+                <dd className="text-[#061E47] font-semibold">{value}</dd>
               </div>
             ))}
           </dl>
 
           {form.rules && (
             <div className="mb-8">
-              <p className="text-sm text-[#718096] mb-2">Rules</p>
-              <ul className="flex flex-col gap-1">
+              <p className="text-sm text-[#718096] mb-2 font-medium">Rules</p>
+              <ul className="flex flex-col gap-1.5">
                 {form.rules
                   .split("\n")
                   .filter(Boolean)
@@ -482,5 +524,13 @@ export default function NewSpacePage() {
         </div>
       )}
     </AppShell>
+  );
+}
+
+export default function NewSpacePage() {
+  return (
+    <Suspense>
+      <NewSpaceContent />
+    </Suspense>
   );
 }

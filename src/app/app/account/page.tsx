@@ -5,6 +5,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { CurrencySelector } from "@/components/ui/CurrencySelector";
 import { useAuth, useApp } from "@/lib/store";
 import { useRouter } from "next/navigation";
 
@@ -51,17 +52,28 @@ export default function AccountPage() {
           Account settings
         </h1>
         <p className="text-sm text-[#718096] mt-1.5">
-          Manage your personal details, credentials, and notification preferences.
+          Manage your personal details, default currency, and notification preferences.
         </p>
       </div>
 
-      <div className="max-w-md">
+      <div className="max-w-xl">
+        {/* Currency Preference */}
+        <section className="mb-14 pb-10 border-b border-[#E2E8F0]">
+          <h2 className="text-lg font-semibold text-[#061E47] mb-1">
+            Default Currency
+          </h2>
+          <p className="text-sm text-[#4A5568] mb-4">
+            Select your primary currency. New spaces and savings planners will default to this currency.
+          </p>
+          <CurrencySelector />
+        </section>
+
         {/* Personal Details */}
-        <section className="mb-14">
+        <section className="mb-14 pb-10 border-b border-[#E2E8F0]">
           <h2 className="text-lg font-semibold text-[#061E47] mb-4">
             Personal profile
           </h2>
-          <form onSubmit={handleSave} className="flex flex-col gap-5">
+          <form onSubmit={handleSave} className="flex flex-col gap-5 max-w-md">
             <Input
               label="Full name"
               value={name}
@@ -85,7 +97,7 @@ export default function AccountPage() {
         </section>
 
         {/* Notification preferences */}
-        <section className="mb-14">
+        <section className="mb-14 pb-10 border-b border-[#E2E8F0]">
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-[#061E47]">
               Notifications

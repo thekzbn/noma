@@ -51,7 +51,9 @@ export default function ContributePage({
 
   function validateAmount(): boolean {
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      setAmountError(`Enter an amount greater than ${formatCurrency(0, currentSpace.currency)}.`);
+      setAmountError(
+        `Enter an amount greater than ${formatCurrency(0, currentSpace.currency)}.`
+      );
       return false;
     }
     if (parsedAmount > remaining + 0.001) {
@@ -85,7 +87,7 @@ export default function ContributePage({
         amount: parsedAmount,
         currency: currentSpace.currency,
         date: new Date().toISOString().slice(0, 10),
-        note: "Direct contribution",
+        note: "Direct contribution (demo)",
         status: "completed",
         memberName: "You",
         reference: ref,
@@ -98,9 +100,7 @@ export default function ContributePage({
       });
 
       showToast(
-        `${formatCurrency(parsedAmount, currentSpace.currency)} added to ${
-          currentSpace.name
-        }.`,
+        `${formatCurrency(parsedAmount, currentSpace.currency)} added to ${currentSpace.name}.`,
         "success"
       );
       setStep("confirmed");
@@ -146,10 +146,7 @@ export default function ContributePage({
                 error={amountError}
                 hint={
                   remaining > 0
-                    ? `Up to ${formatCurrency(
-                        remaining,
-                        space.currency
-                      )} remaining to goal`
+                    ? `Up to ${formatCurrency(remaining, space.currency)} remaining to goal`
                     : "Goal already reached."
                 }
               />
@@ -165,6 +162,7 @@ export default function ContributePage({
                     key={m}
                     className={[
                       "flex items-center gap-3.5 p-3.5 rounded-lg border cursor-pointer select-none transition-colors",
+                      "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#2B6AD0] has-[:focus-visible]:ring-offset-1",
                       method === m
                         ? "border-[#2B6AD0] bg-[#EBF2FC]"
                         : "border-[#CBD5E0] hover:border-[#68A4F1] bg-white",
@@ -224,9 +222,8 @@ export default function ContributePage({
               ))}
             </dl>
 
-            <p className="text-xs text-[#718096] mb-8 leading-relaxed">
-              Your contribution will be credited to this space immediately upon
-              confirmation.
+            <p className="text-xs text-[#856404] bg-[#FFF8E6] border border-[#F6D860] rounded-lg px-3 py-2 mb-8 leading-relaxed">
+              Demo only — no real payment will be made. This records a simulated contribution.
             </p>
 
             <div className="flex gap-3">
@@ -234,7 +231,7 @@ export default function ContributePage({
                 Back
               </Button>
               <Button variant="primary" fullWidth onClick={handleConfirm}>
-                Confirm contribution
+                Record simulated contribution
               </Button>
             </div>
           </div>
@@ -242,8 +239,8 @@ export default function ContributePage({
 
         {/* STEP: Processing */}
         {step === "processing" && (
-          <div className="text-center py-16">
-            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" />
+          <div className="text-center py-16" role="status" aria-live="polite">
+            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" aria-hidden="true" />
             <p className="text-base font-semibold text-[#061E47]">
               Processing contribution
             </p>
@@ -252,16 +249,22 @@ export default function ContributePage({
 
         {/* STEP: Confirmed */}
         {step === "confirmed" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#2D7D4E] flex items-center justify-center font-bold text-xl mb-6">
+          <div className="py-8" role="status" aria-live="polite">
+            <div
+              className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#1E7A45] flex items-center justify-center font-bold text-xl mb-6"
+              aria-hidden="true"
+            >
               ✓
             </div>
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
-              Contribution confirmed
+              Contribution recorded
             </h1>
-            <p className="text-sm text-[#4A5568] mb-8">
+            <p className="text-sm text-[#4A5568] mb-1">
               {formatCurrency(parsedAmount, space.currency)} has been credited to{" "}
-              {space.name}.
+              {space.name} in this demo session.
+            </p>
+            <p className="text-xs text-[#718096] mb-8">
+              In production, this would trigger a real payment.
             </p>
 
             <dl className="divide-y divide-[#E2E8F0] mb-8">
@@ -291,8 +294,11 @@ export default function ContributePage({
 
         {/* STEP: Failed */}
         {step === "failed" && (
-          <div className="py-8">
-            <div className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#FF6347] flex items-center justify-center font-bold text-xl mb-6">
+          <div className="py-8" role="alert">
+            <div
+              className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#C0392B] flex items-center justify-center font-bold text-xl mb-6"
+              aria-hidden="true"
+            >
               ✕
             </div>
             <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
