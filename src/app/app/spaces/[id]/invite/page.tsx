@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSpaces } from "@/lib/store";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 type PermissionKey =
   | "canView"
@@ -113,55 +114,48 @@ export default function InvitePage({
         </p>
 
         {/* Permissions */}
-        <section className="mb-10">
-          <h2 className="text-base font-semibold text-[#061E47] mb-1">
-            Permissions for invitees
-          </h2>
-          <p className="text-xs text-[#718096] mb-4">
-            Invitees will see these conditions before accepting the invitation.
-          </p>
-          <div className="divide-y divide-[#E2E8F0]">
+        <section className="mt-10 mb-12">
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-[#061E47]">
+              Permissions for invitees
+            </h2>
+            <p className="text-xs text-[#718096] mt-1">
+              Invitees will see these conditions before accepting the invitation.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4">
             {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map((key) => {
               const { label, hint } = PERMISSION_LABELS[key];
               const isLocked = key === "canView";
               return (
-                <label
+                <Checkbox
                   key={key}
-                  className={[
-                    "flex items-start gap-3 py-3.5 cursor-pointer select-none transition-colors",
-                    isLocked ? "cursor-default" : "hover:bg-[#F7F9FC] -mx-2 px-2 rounded-lg",
-                  ].join(" ")}
-                >
-                  <input
-                    type="checkbox"
-                    checked={permissions[key]}
-                    onChange={() => toggle(key)}
-                    disabled={isLocked}
-                    className="accent-[#2B6AD0] mt-1 h-4 w-4 rounded shrink-0"
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-[#061E47] flex items-center gap-2">
-                      {label}
-                      {isLocked && (
-                        <span className="text-xs text-[#718096] font-normal">
-                          (always enabled)
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-[#4A5568] mt-0.5">{hint}</div>
-                  </div>
-                </label>
+                  checked={permissions[key]}
+                  onChange={() => toggle(key)}
+                  disabled={isLocked}
+                  label={label}
+                  description={hint}
+                  badge={
+                    isLocked ? (
+                      <span className="text-xs text-[#718096] font-normal">
+                        (always enabled)
+                      </span>
+                    ) : undefined
+                  }
+                  className="p-1 rounded-lg hover:bg-[#F7F9FC] transition-colors"
+                />
               );
             })}
           </div>
         </section>
 
         {/* Invite link */}
-        <section className="pt-6 border-t border-[#E2E8F0]">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#718096] mb-3">
+        <section className="mt-12">
+          <h2 className="text-base font-semibold text-[#061E47] mb-3">
             Invite link
           </h2>
-          <div className="flex items-center gap-3 p-3 bg-[#F7F9FC] border border-[#CBD5E0] rounded-lg mb-3">
+          <div className="flex items-center gap-3 p-3 bg-[#F7F9FC] border border-[#CBD5E0] rounded-lg mb-2">
             <span className="flex-1 text-xs font-mono text-[#061E47] break-all select-all">
               {inviteLink}
             </span>
@@ -175,7 +169,7 @@ export default function InvitePage({
             </p>
           )}
           <p className="text-xs text-[#718096] leading-relaxed">
-            Anyone with this link can view the invitation preview. They will need a Noma account to accept and join.
+            Anyone with this link can view the invitation preview. They will need a noma. account to accept and join.
           </p>
         </section>
       </div>

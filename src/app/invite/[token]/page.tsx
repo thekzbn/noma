@@ -96,19 +96,19 @@ export default function InviteTokenPage({
         </div>
 
         {/* Purpose */}
-        <section className="mb-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#718096] mb-2">
+        <section className="mb-10">
+          <h2 className="text-base font-semibold text-[#061E47] mb-2">
             Purpose
           </h2>
-          <p className="text-sm text-[#061E47] leading-relaxed">
+          <p className="text-sm text-[#4A5568] leading-relaxed">
             {invitation.purpose}
           </p>
         </section>
 
         {/* Rules */}
         {invitation.rules.length > 0 && (
-          <section className="mb-8 pt-6 border-t border-[#E2E8F0]">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#718096] mb-3">
+          <section className="mb-10">
+            <h2 className="text-base font-semibold text-[#061E47] mb-3">
               Rules
             </h2>
             <ul className="flex flex-col gap-2">
@@ -123,8 +123,8 @@ export default function InviteTokenPage({
         )}
 
         {/* Permissions */}
-        <section className="mb-10 pt-6 border-t border-[#E2E8F0]">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#718096] mb-3">
+        <section className="mb-12">
+          <h2 className="text-base font-semibold text-[#061E47] mb-3">
             Permissions granted to you
           </h2>
           <div className="flex flex-wrap gap-2">

@@ -25,7 +25,7 @@ function txStatusClass(s: Transaction["status"]) {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="pt-10 border-t border-[#E2E8F0] mt-10">
+    <section className="mt-16">
       <div className="mb-5">
         <h2 className="text-xl font-semibold text-[#061E47] tracking-tight">{title}</h2>
         {description && <p className="text-sm text-[#718096] mt-1">{description}</p>}
@@ -138,7 +138,7 @@ export default function SpaceDetailPage({
       </Link>
 
       {/* Main Space Header */}
-      <div className="pb-8 border-b border-[#E2E8F0]">
+      <div>
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2.5 flex-wrap mb-2">
@@ -168,7 +168,7 @@ export default function SpaceDetailPage({
         </div>
 
         {/* Financial Core Summary */}
-        <div className="mt-8 pt-8 border-t border-[#E2E8F0]">
+        <div className="mt-8">
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-3">
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-bold text-[#061E47] tracking-tight">
@@ -183,7 +183,7 @@ export default function SpaceDetailPage({
             </div>
           </div>
 
-          <ProgressBar value={pct} size="md" />
+          <ProgressBar value={pct} showLabel={false} size="md" />
 
           {/* Key Parameters */}
           <div className="flex flex-wrap gap-x-8 gap-y-2 mt-4 text-sm text-[#4A5568]">
@@ -273,7 +273,7 @@ export default function SpaceDetailPage({
 
       {/* Members & Permissions */}
       <Section title="Members & permissions" description="People who belong to this space and what they are authorised to do.">
-        <div className="divide-y divide-[#E2E8F0]">
+        <div className="flex flex-col">
           {space.members.map((member) => (
             <MemberRow key={member.id} member={member} />
           ))}
@@ -283,7 +283,7 @@ export default function SpaceDetailPage({
       {/* Payout requests */}
       {space.payoutRequests.length > 0 && (
         <Section title="Payout requests" description="Withdrawal requests waiting for approval or recently processed.">
-          <div className="divide-y divide-[#E2E8F0]">
+          <div className="flex flex-col gap-4">
             {space.payoutRequests.map((req) => {
               const hasApproved =
                 req.approvalsReceived.includes(myMember?.name ?? "") ||
@@ -291,7 +291,7 @@ export default function SpaceDetailPage({
                 req.approvalsReceived.includes("member-me");
 
               return (
-                <div key={req.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={req.id} className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold text-[#061E47]">
@@ -367,11 +367,11 @@ export default function SpaceDetailPage({
         {sortedTx.length === 0 ? (
           <p className="text-sm text-[#718096]">No activity recorded yet.</p>
         ) : (
-          <div className="divide-y divide-[#E2E8F0]">
+          <div className="flex flex-col">
             {sortedTx.map((tx) => (
               <div
                 key={tx.id}
-                className="py-3.5 flex items-center justify-between gap-4 text-sm"
+                className="py-3 flex items-center justify-between gap-4 text-sm"
               >
                 <div>
                   <div className="font-medium text-[#061E47]">

@@ -11,16 +11,16 @@ export default function Home() {
 
       <main id="main-content" className="flex-1">
         {/* Hero */}
-        <section className="max-w-3xl mx-auto px-5 pt-20 pb-16">
+        <section className="max-w-3xl mx-auto px-5 pt-20 pb-20">
           <h1
-            className="text-[2.75rem] leading-[1.12] font-semibold tracking-tight text-[#061E47] mb-6"
-            style={{ maxWidth: "28ch" }}
+            className="text-[2.75rem] leading-[1.15] font-bold tracking-tight text-[#061E47] mb-6"
+            style={{ maxWidth: "26ch" }}
           >
             Save for what actually matters: alone or together.
           </h1>
           <p
-            className="text-[1.125rem] text-[#4A5568] leading-relaxed mb-10"
-            style={{ maxWidth: "54ch" }}
+            className="text-lg text-[#4A5568] leading-relaxed mb-8"
+            style={{ maxWidth: "52ch" }}
           >
             noma. gives every goal its own home: its purpose, its people, its
             rules, and its records. Whether you are saving on your own, with
@@ -35,7 +35,7 @@ export default function Home() {
             </Link>
             <Link
               href="/how-it-works"
-              className="inline-flex items-center px-6 py-3 rounded-lg border border-[#CBD5E0] text-[#1F4591] font-medium hover:bg-[#F7F9FC] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2B6AD0]"
+              className="inline-flex items-center px-6 py-3 rounded-lg border border-[#CBD5E0] text-[#061E47] font-medium hover:bg-[#F7F9FC] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2B6AD0]"
             >
               How it works
             </Link>
@@ -43,15 +43,15 @@ export default function Home() {
         </section>
 
         {/* Three ways to save */}
-        <section className="max-w-3xl mx-auto px-5 pt-20 pb-16">
-          <h2 className="text-xl font-semibold text-[#061E47] mb-10">
+        <section className="max-w-3xl mx-auto px-5 pt-12 pb-20">
+          <h2 className="text-2xl font-bold text-[#061E47] tracking-tight mb-10">
             Three ways people use noma.
           </h2>
 
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-12">
             {/* Community */}
             <div>
-              <h3 className="text-base font-semibold text-[#1F4591] mb-2">
+              <h3 className="text-lg font-semibold text-[#061E47] mb-2">
                 Saving as a community
               </h3>
               <p
@@ -65,7 +65,7 @@ export default function Home() {
               </p>
               <Link
                 href="/sign-up"
-                className="inline-block mt-4 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+                className="inline-block mt-3 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
               >
                 Set up a community space
               </Link>
@@ -73,7 +73,7 @@ export default function Home() {
 
             {/* Shared */}
             <div>
-              <h3 className="text-base font-semibold text-[#1F4591] mb-2">
+              <h3 className="text-lg font-semibold text-[#061E47] mb-2">
                 Saving with family or friends
               </h3>
               <p
@@ -86,7 +86,7 @@ export default function Home() {
               </p>
               <Link
                 href="/sign-up"
-                className="inline-block mt-4 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+                className="inline-block mt-3 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
               >
                 Create a shared space
               </Link>
@@ -94,7 +94,7 @@ export default function Home() {
 
             {/* Personal */}
             <div>
-              <h3 className="text-base font-semibold text-[#1F4591] mb-2">
+              <h3 className="text-lg font-semibold text-[#061E47] mb-2">
                 Saving by yourself
               </h3>
               <p
@@ -107,7 +107,7 @@ export default function Home() {
               </p>
               <Link
                 href="/sign-up"
-                className="inline-block mt-4 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+                className="inline-block mt-3 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
               >
                 Start a personal space
               </Link>
@@ -116,8 +116,8 @@ export default function Home() {
         </section>
 
         {/* Campaign callout */}
-        <section className="max-w-3xl mx-auto px-5 pt-6 pb-16">
-          <h2 className="text-xl font-semibold text-[#061E47] mb-4">
+        <section className="max-w-3xl mx-auto px-5 pt-12 pb-20">
+          <h2 className="text-2xl font-bold text-[#061E47] tracking-tight mb-4">
             Raising contributions from the public
           </h2>
           <p
@@ -131,7 +131,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/campaign/campaign-1"
-              className="inline-flex items-center px-5 py-2.5 rounded-lg border border-[#CBD5E0] text-[#1F4591] text-sm font-medium hover:bg-[#F7F9FC] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2B6AD0]"
+              className="inline-flex items-center px-5 py-2.5 rounded-lg border border-[#CBD5E0] text-[#061E47] text-sm font-medium hover:bg-[#F7F9FC] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2B6AD0]"
             >
               See a live campaign
             </Link>
@@ -145,8 +145,8 @@ export default function Home() {
         </section>
 
         {/* Trust note */}
-        <section className="max-w-3xl mx-auto px-5 pt-6 pb-20">
-          <h2 className="text-xl font-semibold text-[#061E47] mb-4">
+        <section className="max-w-3xl mx-auto px-5 pt-12 pb-24">
+          <h2 className="text-2xl font-bold text-[#061E47] tracking-tight mb-4">
             Permissions are yours to give
           </h2>
           <p

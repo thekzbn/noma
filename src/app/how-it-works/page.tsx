@@ -62,7 +62,7 @@ export default function HowItWorksPage() {
           ))}
         </ol>
 
-        <div className="mt-14 pt-10 border-t border-[#E2E8F0]">
+        <div className="mt-16">
           <Link
             href="/sign-up"
             className="inline-flex items-center px-6 py-3 rounded-lg bg-[#2B6AD0] text-white font-medium hover:bg-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"

@@ -93,7 +93,7 @@ export default function CampaignPage({
             </div>
           )}
 
-          <div className="mb-10 pt-8 border-t border-[#E2E8F0]">
+          <div className="mb-12 mt-12">
             <h2 className="text-base font-semibold text-[#061E47] mb-2">
               Organised by
             </h2>
@@ -102,18 +102,18 @@ export default function CampaignPage({
 
           {/* Donors list */}
           {space.donors && space.donors.length > 0 && (
-            <div className="pt-8 border-t border-[#E2E8F0]">
+            <div className="mt-12">
               <h2 className="text-base font-semibold text-[#061E47] mb-1">
                 Contributions
               </h2>
               <p className="text-xs text-[#718096] mb-5">
                 Contributions are anonymous by default unless the contributor chose to display their name.
               </p>
-              <div className="divide-y divide-[#E2E8F0]">
+              <div className="flex flex-col">
                 {space.donors.map((donor) => (
                   <div
                     key={donor.id}
-                    className="flex items-center justify-between py-3.5 text-sm"
+                    className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>
                       <span className="font-medium text-[#061E47]">
@@ -132,7 +132,7 @@ export default function CampaignPage({
             </div>
           )}
 
-          <div className="mt-12 pt-8 border-t border-[#E2E8F0] text-center">
+          <div className="mt-16 text-center">
             <Link href={`/campaign/${id}/contribute`}>
               <Button variant="primary" size="lg">
                 Contribute to this campaign

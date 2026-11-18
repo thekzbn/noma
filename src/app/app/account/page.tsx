@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { useAuth, useApp } from "@/lib/store";
 import { useRouter } from "next/navigation";
 
@@ -45,18 +46,18 @@ export default function AccountPage() {
 
   return (
     <AppShell>
-      <div className="pb-8 border-b border-[#E2E8F0] mb-8">
+      <div className="pb-6 mb-10">
         <h1 className="text-3xl font-bold text-[#061E47] tracking-tight">
           Account settings
         </h1>
-        <p className="text-sm text-[#4A5568] mt-1.5">
+        <p className="text-sm text-[#718096] mt-1.5">
           Manage your personal details, credentials, and notification preferences.
         </p>
       </div>
 
       <div className="max-w-md">
         {/* Personal Details */}
-        <section className="mb-10">
+        <section className="mb-14">
           <h2 className="text-lg font-semibold text-[#061E47] mb-4">
             Personal profile
           </h2>
@@ -84,42 +85,37 @@ export default function AccountPage() {
         </section>
 
         {/* Notification preferences */}
-        <section className="border-t border-[#E2E8F0] pt-8 mb-10">
-          <h2 className="text-lg font-semibold text-[#061E47] mb-4">
-            Notifications
-          </h2>
+        <section className="mb-14">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-[#061E47]">
+              Notifications
+            </h2>
+            <p className="text-xs text-[#718096] mt-1">
+              Choose how you want to be alerted about space events.
+            </p>
+          </div>
           <div className="flex flex-col gap-4">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={payoutAlerts}
-                onChange={(e) => setPayoutAlerts(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-[#CBD5E0] text-[#2B6AD0] focus:ring-[#2B6AD0]"
-              />
-              <div>
-                <p className="text-sm font-medium text-[#061E47]">Payout approvals</p>
-                <p className="text-xs text-[#718096]">Receive alerts when a community space requires your vote.</p>
-              </div>
-            </label>
+            <Checkbox
+              checked={payoutAlerts}
+              onChange={setPayoutAlerts}
+              label="Payout approvals"
+              description="Receive alerts when a community space requires your vote."
+              className="p-1 rounded-lg hover:bg-[#F7F9FC] transition-colors"
+            />
 
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={emailAlerts}
-                onChange={(e) => setEmailAlerts(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-[#CBD5E0] text-[#2B6AD0] focus:ring-[#2B6AD0]"
-              />
-              <div>
-                <p className="text-sm font-medium text-[#061E47]">Contribution receipts</p>
-                <p className="text-xs text-[#718096]">Receive confirmation emails whenever you deposit funds.</p>
-              </div>
-            </label>
+            <Checkbox
+              checked={emailAlerts}
+              onChange={setEmailAlerts}
+              label="Contribution receipts"
+              description="Receive confirmation emails whenever you deposit funds."
+              className="p-1 rounded-lg hover:bg-[#F7F9FC] transition-colors"
+            />
           </div>
         </section>
 
         {/* Security / Sign out */}
-        <section className="border-t border-[#E2E8F0] pt-8">
-          <h2 className="text-lg font-semibold text-[#061E47] mb-2">
+        <section className="pt-2">
+          <h2 className="text-lg font-semibold text-[#061E47] mb-1">
             Session
           </h2>
           <p className="text-xs text-[#718096] mb-4">
