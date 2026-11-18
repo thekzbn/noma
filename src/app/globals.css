@@ -75,12 +75,17 @@ p {
   margin: 0;
 }
 
-a {
+/* Only apply link colour to prose anchors, not to component anchors that
+   set their own colour via Tailwind utility classes. Using :not to exclude
+   any anchor that already carries an explicit Tailwind text-* class would
+   not work reliably, so we scope to only unclassed anchors inside block
+   content areas. Component-level links set their own colour explicitly. */
+a:not([class]) {
   color: var(--color-action);
   text-decoration: none;
 }
 
-a:hover {
+a:not([class]):hover {
   text-decoration: underline;
 }
 

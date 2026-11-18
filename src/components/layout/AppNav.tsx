@@ -8,7 +8,6 @@ import { useState } from "react";
 const NAV_LINKS = [
   { href: "/app", label: "Spaces", exact: true },
   { href: "/app/activity", label: "Activity", exact: false },
-  { href: "/app/account", label: "Account", exact: false },
 ];
 
 export function AppNav() {
@@ -56,10 +55,20 @@ export function AppNav() {
           ))}
         </nav>
 
-        {/* User + sign out */}
-        <div className="hidden sm:flex items-center gap-4">
+        {/* User identity + sign out */}
+        <div className="hidden sm:flex items-center gap-5">
           {user && (
-            <span className="text-sm text-[#4A5568]">{user.name.split(" ")[0]}</span>
+            <Link
+              href="/app/account"
+              className={[
+                "text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded",
+                isActive("/app/account", false)
+                  ? "text-[#1F4591]"
+                  : "text-[#4A5568] hover:text-[#1F4591]",
+              ].join(" ")}
+            >
+              {user.name.split(" ")[0]}
+            </Link>
           )}
           <button
             onClick={handleSignOut}
@@ -107,6 +116,20 @@ export function AppNav() {
               {link.label}
             </Link>
           ))}
+          {user && (
+            <Link
+              href="/app/account"
+              className={[
+                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                isActive("/app/account", false)
+                  ? "text-[#1F4591] bg-[#EBF2FC]"
+                  : "text-[#4A5568]",
+              ].join(" ")}
+              onClick={() => setMenuOpen(false)}
+            >
+              Account
+            </Link>
+          )}
           <button
             onClick={() => { handleSignOut(); setMenuOpen(false); }}
             className="text-left px-3 py-2 text-sm text-[#718096] hover:text-[#1F4591] rounded-lg"

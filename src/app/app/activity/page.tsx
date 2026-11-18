@@ -47,11 +47,11 @@ export default function ActivityPage() {
 
   return (
     <AppShell>
-      <div className="pb-8 border-b border-[#E2E8F0] mb-8">
+      <div className="pb-10 mb-10">
         <h1 className="text-3xl font-bold text-[#061E47] tracking-tight">
           Activity ledger
         </h1>
-        <p className="text-sm text-[#4A5568] mt-1.5">
+        <p className="text-sm text-[#718096] mt-1.5">
           All verified contributions and payouts across your savings spaces.
         </p>
       </div>
@@ -62,26 +62,25 @@ export default function ActivityPage() {
           <p className="text-sm text-[#718096]">Activity will appear here as soon as you contribute to a space.</p>
         </div>
       ) : (
-        <div className="divide-y divide-[#E2E8F0]">
+        <div className="flex flex-col">
           {allTx.map((tx) => (
-            <div key={tx.id} className="py-4 hover:bg-[#F7F9FC] -mx-4 px-4 rounded-xl transition-colors">
+            <div key={tx.id} className="py-5 border-b border-[#F0F4F8] last:border-0">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <Link
-                    href={`/app/spaces/${tx.spaceId}`}
-                    className="text-xs font-semibold text-[#2B6AD0] hover:underline mb-1 block"
-                  >
-                    {tx.spaceName}
-                  </Link>
-                  <p className="text-base text-[#061E47] font-medium capitalize">
-                    {tx.type}
-                    {tx.memberName ? ` (${tx.memberName})` : ""}
+                <div className="min-w-0">
+                  <p className="text-base text-[#061E47] font-semibold capitalize leading-snug">
+                    {tx.type}{tx.memberName ? ` \u2013 ${tx.memberName}` : ""}
                   </p>
-                  {tx.note && (
-                    <p className="text-xs text-[#718096] mt-0.5">{tx.note}</p>
-                  )}
+                  <p className="text-sm text-[#718096] mt-0.5">
+                    <Link
+                      href={`/app/spaces/${tx.spaceId}`}
+                      className="hover:text-[#1F4591] transition-colors"
+                    >
+                      {tx.spaceName}
+                    </Link>
+                    {tx.note ? ` \u00b7 ${tx.note}` : ""}
+                  </p>
                   <p className="text-xs text-[#A0AEC0] font-mono mt-1">
-                    {tx.reference} · {tx.date}
+                    {tx.reference} &middot; {tx.date}
                   </p>
                 </div>
                 <div className="text-right shrink-0">

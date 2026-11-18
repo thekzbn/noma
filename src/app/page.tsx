@@ -22,7 +22,7 @@ export default function Home() {
             className="text-[1.125rem] text-[#4A5568] leading-relaxed mb-10"
             style={{ maxWidth: "54ch" }}
           >
-            Noma gives every goal its own home: its purpose, its people, its
+            noma. gives every goal its own home: its purpose, its people, its
             rules, and its records. Whether you are saving on your own, with
             family, or running a rotating community fund, everything stays together in one space.
           </p>
@@ -42,13 +42,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="border-t border-[#E2E8F0]" />
-
         {/* Three ways to save */}
-        <section className="max-w-3xl mx-auto px-5 py-16">
+        <section className="max-w-3xl mx-auto px-5 pt-20 pb-16">
           <h2 className="text-xl font-semibold text-[#061E47] mb-10">
-            Three ways people use Noma
+            Three ways people use noma.
           </h2>
 
           <div className="flex flex-col gap-10">
@@ -74,8 +71,6 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="border-t border-[#E2E8F0]" />
-
             {/* Shared */}
             <div>
               <h3 className="text-base font-semibold text-[#1F4591] mb-2">
@@ -96,8 +91,6 @@ export default function Home() {
                 Create a shared space
               </Link>
             </div>
-
-            <div className="border-t border-[#E2E8F0]" />
 
             {/* Personal */}
             <div>
@@ -122,11 +115,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="border-t border-[#E2E8F0]" />
-
         {/* Campaign callout */}
-        <section className="max-w-3xl mx-auto px-5 py-16">
+        <section className="max-w-3xl mx-auto px-5 pt-6 pb-16">
           <h2 className="text-xl font-semibold text-[#061E47] mb-4">
             Raising contributions from the public
           </h2>
@@ -154,11 +144,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="border-t border-[#E2E8F0]" />
-
         {/* Trust note */}
-        <section className="max-w-3xl mx-auto px-5 py-14">
+        <section className="max-w-3xl mx-auto px-5 pt-6 pb-20">
           <h2 className="text-xl font-semibold text-[#061E47] mb-4">
             Permissions are yours to give
           </h2>

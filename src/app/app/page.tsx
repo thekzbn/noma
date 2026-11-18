@@ -18,20 +18,15 @@ function SpaceRow({ space }: { space: Space }) {
   return (
     <Link
       href={`/app/spaces/${space.id}`}
-      className="group block py-6 px-4 -mx-4 rounded-xl hover:bg-[#F7F9FC] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
+      className="group block py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
     >
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 sm:gap-6 mb-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h3 className="font-semibold text-[#061E47] text-lg group-hover:text-[#2B6AD0] transition-colors">
-              {space.name}
-            </h3>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#EBF2FC] text-[#1F4591]">
-              {spaceTypeLabel(space.type)}
-            </span>
-          </div>
-          <p className="text-sm text-[#4A5568] mt-1 line-clamp-1">
-            {space.purpose}
+          <h3 className="font-semibold text-[#061E47] text-lg group-hover:text-[#2B6AD0] transition-colors">
+            {space.name}
+          </h3>
+          <p className="text-sm text-[#718096] mt-0.5 line-clamp-1">
+            {spaceTypeLabel(space.type)} &middot; {space.purpose}
           </p>
         </div>
 
@@ -88,13 +83,13 @@ export default function AppHomePage() {
   return (
     <AppShell>
       {/* Header section with financial overview */}
-      <div className="pb-8 border-b border-[#E2E8F0] mb-8">
+      <div className="pb-10 mb-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-[#061E47] tracking-tight">
               Your savings spaces
             </h1>
-            <p className="text-sm text-[#4A5568] mt-1.5">
+            <p className="text-sm text-[#718096] mt-1.5">
               {totalSummaryString} total saved across {mySpaces.length}{" "}
               {mySpaces.length === 1 ? "space" : "spaces"}
             </p>
@@ -121,7 +116,7 @@ export default function AppHomePage() {
         </div>
       ) : (
         <section>
-          <div className="divide-y divide-[#E2E8F0]">
+          <div className="flex flex-col">
             {mySpaces.map((space) => (
               <SpaceRow key={space.id} space={space} />
             ))}
@@ -131,7 +126,7 @@ export default function AppHomePage() {
 
       {/* Campaigns section */}
       {campaigns.length > 0 && (
-        <section className="mt-16 pt-10 border-t border-[#E2E8F0]">
+        <section className="mt-20">
           <div className="flex items-center justify-between gap-4 mb-2">
             <div>
               <h2 className="text-xl font-semibold text-[#061E47]">Public campaigns</h2>
@@ -140,7 +135,7 @@ export default function AppHomePage() {
               </p>
             </div>
           </div>
-          <div className="divide-y divide-[#E2E8F0] mt-4">
+          <div className="flex flex-col mt-4">
             {campaigns.map((space) => (
               <SpaceRow key={space.id} space={space} />
             ))}
