@@ -1,98 +1,125 @@
-'use client'
+"use client";
 
-import { use, useState } from 'react'
-import Link from 'next/link'
-import { useSpaces, useApp } from '@/lib/store'
-import { type Member } from '@/lib/demo-data'
-import { AppShell } from '@/components/layout/AppShell'
-import { Button } from '@/components/ui/Button'
+import { use, useState } from "react";
+import Link from "next/link";
+import { useSpaces, useApp } from "@/lib/store";
+import { type Member } from "@/lib/demo-data";
+import { AppShell } from "@/components/layout/AppShell";
+import { Button } from "@/components/ui/Button";
 
-type PermKey = 'canView' | 'canContribute' | 'canInvite' | 'canApprovePayouts' | 'canRequestPayouts'
+type PermKey =
+  | "canView"
+  | "canContribute"
+  | "canInvite"
+  | "canApprovePayouts"
+  | "canRequestPayouts";
 
 const PERM_LABELS: Record<PermKey, string> = {
-  canView: 'View',
-  canContribute: 'Contribute',
-  canInvite: 'Invite',
-  canRequestPayouts: 'Request payouts',
-  canApprovePayouts: 'Approve payouts',
-}
+  canView: "View",
+  canContribute: "Contribute",
+  canInvite: "Invite",
+  canRequestPayouts: "Request payouts",
+  canApprovePayouts: "Approve payouts",
+};
 
-export default function PermissionsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const { spaces, updateSpace } = useSpaces()
-  const { showToast } = useApp()
+export default function PermissionsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { spaces, updateSpace } = useSpaces();
+  const { showToast } = useApp();
 
-  const space = spaces.find(s => s.id === id)
-  const [members, setMembers] = useState<Member[]>(() => space?.members ?? [])
-  const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
-  const [saved, setSaved] = useState(false)
+  const space = spaces.find((s) => s.id === id);
+  const [members, setMembers] = useState<Member[]>(() => space?.members ?? []);
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   if (!space) {
     return (
       <AppShell>
-        <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '4rem 1rem' }}>
-          <p style={{ color: '#061E47', marginBottom: '1rem' }}>Space not found.</p>
-          <Link href="/app" style={{ color: '#2B6AD0' }}>Back to spaces</Link>
+        <div className="max-w-md mx-auto py-16 text-center">
+          <p className="text-[#061E47] mb-4">Space not found.</p>
+          <Link
+            href="/app"
+            className="text-[#2B6AD0] hover:underline text-sm font-medium"
+          >
+            Back to spaces
+          </Link>
         </div>
       </AppShell>
-    )
+    );
   }
 
-  const currentSpace = space
+  const currentSpace = space;
 
   function togglePerm(memberId: string, perm: PermKey) {
-    if (perm === 'canView') return
-    setMembers(prev =>
-      prev.map(m =>
+    if (perm === "canView") return;
+    setMembers((prev) =>
+      prev.map((m) =>
         m.id === memberId
-          ? { ...m, permissions: { ...m.permissions, [perm]: !m.permissions[perm] } }
+          ? {
+              ...m,
+              permissions: {
+                ...m.permissions,
+                [perm]: !m.permissions[perm],
+              },
+            }
           : m
       )
-    )
-    setSaved(false)
+    );
+    setSaved(false);
   }
 
   function handleRemove(memberId: string) {
-    setMembers(prev => prev.filter(m => m.id !== memberId))
-    setConfirmRemove(null)
-    setSaved(false)
+    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+    setConfirmRemove(null);
+    setSaved(false);
   }
 
   function handleSave() {
-    updateSpace({ ...currentSpace, members })
-    showToast('Permissions updated.', 'success')
-    setSaved(true)
+    updateSpace({ ...currentSpace, members });
+    showToast("Permissions updated.", "success");
+    setSaved(true);
   }
 
-  const ownerMember = members.find(m => m.role === 'owner')
-  const editableMembers = members.filter(m => m.role !== 'owner')
+  const ownerMember = members.find((m) => m.role === "owner");
+  const editableMembers = members.filter((m) => m.role !== "owner");
 
   return (
     <AppShell>
-      <div style={{ maxWidth: '42rem', margin: '0 auto', padding: '2.5rem 1rem' }}>
-        <Link href={`/app/spaces/${id}`} style={{ color: '#2B6AD0', fontSize: '0.875rem', display: 'inline-block', marginBottom: '1.5rem' }}>
+      <div className="max-w-2xl mx-auto py-6">
+        <Link
+          href={`/app/spaces/${id}`}
+          className="text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] mb-6 inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+        >
           ← {space.name}
         </Link>
 
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+        <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-1.5">
           Permissions
         </h1>
-        <p style={{ color: '#1F4591', marginBottom: '2.5rem', fontSize: '0.9375rem' }}>
-          Control what each member can do in this space.
+        <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
+          Control what each member is authorised to do in this space.
         </p>
 
         {/* Owner */}
         {ownerMember && (
-          <section style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#061E47', marginBottom: '0.75rem' }}>
+          <section className="mb-10">
+            <h2 className="text-base font-semibold text-[#061E47] mb-3">
               Owner
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 0', borderBottom: '1px solid #E8EEF7' }}>
+            <div className="flex items-center justify-between py-3.5 border-b border-[#E2E8F0]">
               <div>
-                <div style={{ fontWeight: 500, color: '#061E47' }}>{ownerMember.name}</div>
-                <div style={{ fontSize: '0.8125rem', color: '#718096', marginTop: '0.125rem' }}>Full administrative access (cannot be modified)</div>
+                <div className="font-semibold text-sm text-[#061E47]">
+                  {ownerMember.name}
+                </div>
+                <div className="text-xs text-[#718096] mt-0.5">
+                  Full administrative authority (cannot be removed)
+                </div>
               </div>
-              <span style={{ fontSize: '0.75rem', background: '#EEF4FF', color: '#1F4591', padding: '0.25rem 0.625rem', borderRadius: '99px', fontWeight: 600 }}>
+              <span className="text-xs bg-[#EBF2FC] text-[#1F4591] px-2.5 py-0.5 rounded-full font-semibold">
                 Owner
               </span>
             </div>
@@ -100,85 +127,105 @@ export default function PermissionsPage({ params }: { params: Promise<{ id: stri
         )}
 
         {/* Editable members */}
-        <section style={{ marginBottom: '2.5rem' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#061E47', marginBottom: '0.75rem' }}>
+        <section className="mb-10">
+          <h2 className="text-base font-semibold text-[#061E47] mb-3">
             Members ({editableMembers.length})
           </h2>
 
           {editableMembers.length === 0 && (
-            <p style={{ color: '#1F4591', fontSize: '0.9375rem' }}>
-              No other members yet.{' '}
-              <Link href={`/app/spaces/${id}/invite`} style={{ color: '#2B6AD0' }}>Invite someone.</Link>
+            <p className="text-sm text-[#4A5568]">
+              No other members yet.{" "}
+              <Link
+                href={`/app/spaces/${id}/invite`}
+                className="text-[#2B6AD0] hover:underline font-medium"
+              >
+                Invite someone.
+              </Link>
             </p>
           )}
 
-          {editableMembers.map((member, i) => (
-            <div
-              key={member.id}
-              style={{
-                borderTop: i === 0 ? '1px solid #E8EEF7' : 'none',
-                borderBottom: '1px solid #E8EEF7',
-                padding: '1.25rem 0',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div>
-                  <div style={{ fontWeight: 500, color: '#061E47' }}>{member.name}</div>
-                  <div style={{ fontSize: '0.8125rem', color: '#68A4F1', marginTop: '0.125rem', textTransform: 'capitalize' }}>
-                    {member.role}
+          <div className="divide-y divide-[#E2E8F0]">
+            {editableMembers.map((member) => (
+              <div key={member.id} className="py-5">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div>
+                    <div className="font-semibold text-sm text-[#061E47]">
+                      {member.name}
+                    </div>
+                    <div className="text-xs text-[#718096] capitalize mt-0.5">
+                      {member.role}
+                    </div>
                   </div>
-                </div>
-                {confirmRemove === member.id ? (
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8125rem', color: '#FF6347' }}>Remove {member.name}?</span>
-                    <Button variant="destructive" size="sm" onClick={() => handleRemove(member.id)}>Confirm</Button>
-                    <Button variant="ghost" size="sm" onClick={() => setConfirmRemove(null)}>Cancel</Button>
-                  </div>
-                ) : (
-                  <Button variant="ghost" size="sm" onClick={() => setConfirmRemove(member.id)}>
-                    Remove
-                  </Button>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {(Object.keys(PERM_LABELS) as PermKey[]).map(perm => {
-                  const isOn = member.permissions[perm]
-                  const isLocked = perm === 'canView'
-                  return (
-                    <button
-                      key={perm}
-                      onClick={() => togglePerm(member.id, perm)}
-                      disabled={isLocked}
-                      style={{
-                        padding: '0.3125rem 0.75rem',
-                        borderRadius: '99px',
-                        border: `1.5px solid ${isOn ? '#2B6AD0' : '#D1D9E6'}`,
-                        background: isOn ? '#EEF4FF' : '#FEFEFE',
-                        color: isOn ? '#1F4591' : '#68A4F1',
-                        fontSize: '0.8125rem',
-                        fontWeight: 500,
-                        cursor: isLocked ? 'default' : 'pointer',
-                      }}
+                  {confirmRemove === member.id ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#FF6347] font-medium">
+                        Remove {member.name}?
+                      </span>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemove(member.id)}
+                      >
+                        Confirm
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmRemove(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmRemove(member.id)}
                     >
-                      {PERM_LABELS[perm]}
-                    </button>
-                  )
-                })}
+                      Remove
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {(Object.keys(PERM_LABELS) as PermKey[]).map((perm) => {
+                    const isOn = member.permissions[perm];
+                    const isLocked = perm === "canView";
+                    return (
+                      <button
+                        key={perm}
+                        type="button"
+                        onClick={() => togglePerm(member.id, perm)}
+                        disabled={isLocked}
+                        className={[
+                          "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                          isOn
+                            ? "bg-[#EBF2FC] border-[#2B6AD0] text-[#1F4591]"
+                            : "bg-white border-[#CBD5E0] text-[#718096] hover:border-[#68A4F1]",
+                          isLocked ? "cursor-default opacity-80" : "cursor-pointer",
+                        ].join(" ")}
+                      >
+                        {PERM_LABELS[perm]}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="flex items-center gap-3">
           <Button variant="primary" onClick={handleSave}>
             Save changes
           </Button>
           {saved && (
-            <span style={{ color: '#3CB371', fontSize: '0.9rem' }}>Saved</span>
+            <span className="text-xs font-semibold text-[#2D7D4E]">
+              Changes saved
+            </span>
           )}
         </div>
       </div>
     </AppShell>
-  )
+  );
 }

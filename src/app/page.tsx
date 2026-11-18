@@ -9,7 +9,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-[#FEFEFE]">
       <PublicNav />
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero */}
         <section className="max-w-3xl mx-auto px-5 pt-20 pb-16">
           <h1
@@ -52,24 +52,25 @@ export default function Home() {
           </h2>
 
           <div className="flex flex-col gap-10">
-            {/* Personal */}
+            {/* Community */}
             <div>
               <h3 className="text-base font-semibold text-[#1F4591] mb-2">
-                Saving by yourself
+                Saving as a community
               </h3>
               <p
                 className="text-[#4A5568] leading-relaxed"
                 style={{ maxWidth: "60ch" }}
               >
-                Set a goal (such as a laptop, house deposit, or emergency buffer) with a
-                target amount and target date. If you wish, invite an accountability partner
-                to view your progress. They see what you share; they cannot touch your money.
+                Organise an Ajo, Esusu, or rotating group with clear cycles.
+                Establish cycle amounts, rotation schedules, and quorum requirements.
+                Every contribution is audited in real time, and payouts release only when
+                the required approvals are recorded.
               </p>
               <Link
                 href="/sign-up"
                 className="inline-block mt-4 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
               >
-                Start a personal space
+                Set up a community space
               </Link>
             </div>
 
@@ -98,25 +99,24 @@ export default function Home() {
 
             <div className="border-t border-[#E2E8F0]" />
 
-            {/* Community */}
+            {/* Personal */}
             <div>
               <h3 className="text-base font-semibold text-[#1F4591] mb-2">
-                Saving as a community
+                Saving by yourself
               </h3>
               <p
                 className="text-[#4A5568] leading-relaxed"
                 style={{ maxWidth: "60ch" }}
               >
-                Organise an Ajo, Esusu, or rotating group with clear cycles.
-                Establish cycle amounts, rotation schedules, and quorum requirements.
-                Every contribution is audited in real time, and payouts release only when
-                the required approvals are recorded.
+                Set a goal (such as a laptop, house deposit, or emergency buffer) with a
+                target amount and target date. If you wish, invite an accountability partner
+                to view your progress. They see what you share; they cannot touch your money.
               </p>
               <Link
                 href="/sign-up"
                 className="inline-block mt-4 text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
               >
-                Set up a community space
+                Start a personal space
               </Link>
             </div>
           </div>

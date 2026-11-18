@@ -166,7 +166,7 @@ export default function NewSpacePage() {
       }),
       ...(spaceType === "campaign" && {
         beneficiary: form.beneficiary,
-        endDate: form.endDate || undefined,
+        endDate: form.targetDate || form.endDate || undefined,
         isPublic: true,
         donors: [],
       }),

@@ -11,6 +11,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   ref
 ) {
   const inputId = id || label.toLowerCase().replace(/\s+/g, "-");
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
+  const describedBy = error ? errorId : hint ? hintId : undefined;
+
   return (
     <div className="flex flex-col gap-1.5">
       <label
@@ -22,6 +26,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <input
         ref={ref}
         id={inputId}
+        aria-invalid={error ? "true" : "false"}
+        aria-describedby={describedBy}
         {...props}
         className={[
           "w-full px-3.5 py-2.5 rounded-lg border text-[#061E47] bg-white",
@@ -37,10 +43,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           .join(" ")}
       />
       {hint && !error && (
-        <p className="text-xs text-[#718096]">{hint}</p>
+        <p id={hintId} className="text-xs text-[#718096]">{hint}</p>
       )}
       {error && (
-        <p className="text-xs text-[#FF6347]" role="alert">
+        <p id={errorId} className="text-xs text-[#FF6347]" role="alert">
           {error}
         </p>
       )}
@@ -57,6 +63,10 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea({ label, error, hint, id, className = "", ...props }, ref) {
     const textareaId = id || label.toLowerCase().replace(/\s+/g, "-");
+    const errorId = `${textareaId}-error`;
+    const hintId = `${textareaId}-hint`;
+    const describedBy = error ? errorId : hint ? hintId : undefined;
+
     return (
       <div className="flex flex-col gap-1.5">
         <label
@@ -69,6 +79,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           rows={4}
+          aria-invalid={error ? "true" : "false"}
+          aria-describedby={describedBy}
           {...props}
           className={[
             "w-full px-3.5 py-2.5 rounded-lg border text-[#061E47] bg-white",
@@ -84,10 +96,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             .join(" ")}
         />
         {hint && !error && (
-          <p className="text-xs text-[#718096]">{hint}</p>
+          <p id={hintId} className="text-xs text-[#718096]">{hint}</p>
         )}
         {error && (
-          <p className="text-xs text-[#FF6347]" role="alert">
+          <p id={errorId} className="text-xs text-[#FF6347]" role="alert">
             {error}
           </p>
         )}
@@ -109,6 +121,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     ref
   ) {
     const selectId = id || label.toLowerCase().replace(/\s+/g, "-");
+    const errorId = `${selectId}-error`;
+    const hintId = `${selectId}-hint`;
+    const describedBy = error ? errorId : hint ? hintId : undefined;
+
     return (
       <div className="flex flex-col gap-1.5">
         <label
@@ -120,6 +136,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           id={selectId}
+          aria-invalid={error ? "true" : "false"}
+          aria-describedby={describedBy}
           {...props}
           className={[
             "w-full px-3.5 py-2.5 rounded-lg border text-[#061E47] bg-white",
@@ -141,10 +159,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
         {hint && !error && (
-          <p className="text-xs text-[#718096]">{hint}</p>
+          <p id={hintId} className="text-xs text-[#718096]">{hint}</p>
         )}
         {error && (
-          <p className="text-xs text-[#FF6347]" role="alert">
+          <p id={errorId} className="text-xs text-[#FF6347]" role="alert">
             {error}
           </p>
         )}

@@ -1,28 +1,52 @@
-'use client'
+"use client";
 
-import { use, useState } from 'react'
-import Link from 'next/link'
-import { useSpaces } from '@/lib/store'
-import { AppShell } from '@/components/layout/AppShell'
-import { Button } from '@/components/ui/Button'
+import { use, useState } from "react";
+import Link from "next/link";
+import { useSpaces } from "@/lib/store";
+import { AppShell } from "@/components/layout/AppShell";
+import { Button } from "@/components/ui/Button";
 
-type PermissionKey = 'canView' | 'canContribute' | 'canInvite' | 'canApprovePayouts' | 'canRequestPayouts'
+type PermissionKey =
+  | "canView"
+  | "canContribute"
+  | "canInvite"
+  | "canApprovePayouts"
+  | "canRequestPayouts";
 
-const PERMISSION_LABELS: Record<PermissionKey, { label: string; hint: string }> = {
-  canView: { label: 'View space details', hint: 'Can see the goal, activity, and member list' },
-  canContribute: { label: 'Contribute', hint: 'Can add money to this space' },
-  canInvite: { label: 'Invite others', hint: 'Can generate invite links for new members' },
-  canRequestPayouts: { label: 'Request payouts', hint: 'Can submit payout requests' },
-  canApprovePayouts: { label: 'Approve payouts', hint: 'Can vote to approve or reject payout requests' },
-}
+const PERMISSION_LABELS: Record<
+  PermissionKey,
+  { label: string; hint: string }
+> = {
+  canView: {
+    label: "View space details",
+    hint: "Can see the goal, activity, and member list",
+  },
+  canContribute: { label: "Contribute", hint: "Can add money to this space" },
+  canInvite: {
+    label: "Invite others",
+    hint: "Can generate invite links for new members",
+  },
+  canRequestPayouts: {
+    label: "Request payouts",
+    hint: "Can submit payout requests",
+  },
+  canApprovePayouts: {
+    label: "Approve payouts",
+    hint: "Can vote to approve or reject payout requests",
+  },
+};
 
-export default function InvitePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const { spaces } = useSpaces()
-  const space = spaces.find(s => s.id === id)
+export default function InvitePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { spaces } = useSpaces();
+  const space = spaces.find((s) => s.id === id);
 
-  const inviteLink = `https://noma.app/invite/inv-${id}`
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const [permissions, setPermissions] = useState<Record<PermissionKey, boolean>>({
     canView: true,
@@ -30,122 +54,131 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
     canInvite: false,
     canRequestPayouts: false,
     canApprovePayouts: false,
-  })
-
-  function handleCopy() {
-    navigator.clipboard.writeText(inviteLink).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
-    }).catch(() => {
-      // Fallback: show link
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
-    })
-  }
-
-  function toggle(key: PermissionKey) {
-    if (key === 'canView') return
-    setPermissions(prev => ({ ...prev, [key]: !prev[key] }))
-  }
+  });
 
   if (!space) {
     return (
       <AppShell>
-        <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '4rem 1rem' }}>
-          <p style={{ color: '#061E47', marginBottom: '1rem' }}>Space not found.</p>
-          <Link href="/app" style={{ color: '#2B6AD0' }}>Back to spaces</Link>
+        <div className="max-w-md mx-auto py-16 text-center">
+          <p className="text-[#061E47] mb-4">Space not found.</p>
+          <Link href="/app" className="text-[#2B6AD0] hover:underline text-sm font-medium">
+            Back to spaces
+          </Link>
         </div>
       </AppShell>
-    )
+    );
+  }
+
+  const inviteLink =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/invite/inv-${id}`
+      : `/invite/inv-${id}`;
+
+  async function handleCopy() {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(inviteLink);
+        setCopied(true);
+        setCopyFailed(false);
+        setTimeout(() => setCopied(false), 2500);
+      } else {
+        throw new Error("Clipboard API unavailable");
+      }
+    } catch {
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 4000);
+    }
+  }
+
+  function toggle(key: PermissionKey) {
+    if (key === "canView") return;
+    setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   return (
     <AppShell>
-      <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '2.5rem 1rem' }}>
-        <Link href={`/app/spaces/${id}`} style={{ color: '#2B6AD0', fontSize: '0.875rem', display: 'inline-block', marginBottom: '1.5rem' }}>
+      <div className="max-w-lg mx-auto py-6">
+        <Link
+          href={`/app/spaces/${id}`}
+          className="text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] mb-6 inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+        >
           ← {space.name}
         </Link>
 
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+        <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-1.5">
           Invite someone
         </h1>
-        <p style={{ color: '#1F4591', marginBottom: '2rem', fontSize: '0.9375rem' }}>
-          Share a link to invite people to {space.name}. Set what they can do before they accept.
+        <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
+          Share a link to invite people to {space.name}. Set what they are authorised to do before they accept.
         </p>
 
         {/* Permissions */}
-        <section style={{ marginBottom: '2.5rem' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#061E47', marginBottom: '0.25rem' }}>
+        <section className="mb-10">
+          <h2 className="text-base font-semibold text-[#061E47] mb-1">
             Permissions for invitees
           </h2>
-          <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '1.25rem' }}>
-            Invitees will see these permissions before accepting.
+          <p className="text-xs text-[#718096] mb-4">
+            Invitees will see these conditions before accepting the invitation.
           </p>
-          <div>
-            {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map((key, i) => {
-              const { label, hint } = PERMISSION_LABELS[key]
-              const isLocked = key === 'canView'
+          <div className="divide-y divide-[#E2E8F0]">
+            {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map((key) => {
+              const { label, hint } = PERMISSION_LABELS[key];
+              const isLocked = key === "canView";
               return (
                 <label
                   key={key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.875rem',
-                    padding: '0.875rem 0',
-                    borderBottom: i < Object.keys(PERMISSION_LABELS).length - 1 ? '1px solid #E8EEF7' : 'none',
-                    cursor: isLocked ? 'default' : 'pointer',
-                  }}
+                  className={[
+                    "flex items-start gap-3 py-3.5 cursor-pointer select-none transition-colors",
+                    isLocked ? "cursor-default" : "hover:bg-[#F7F9FC] -mx-2 px-2 rounded-lg",
+                  ].join(" ")}
                 >
                   <input
                     type="checkbox"
                     checked={permissions[key]}
                     onChange={() => toggle(key)}
                     disabled={isLocked}
-                    style={{ accentColor: '#2B6AD0', marginTop: '0.1875rem', flexShrink: 0 }}
+                    className="accent-[#2B6AD0] mt-1 h-4 w-4 rounded shrink-0"
                   />
                   <div>
-                    <div style={{ color: '#061E47', fontWeight: 500, fontSize: '0.9375rem' }}>
+                    <div className="text-sm font-medium text-[#061E47] flex items-center gap-2">
                       {label}
-                      {isLocked && <span style={{ color: '#68A4F1', fontWeight: 400, marginLeft: '0.5rem', fontSize: '0.8125rem' }}>(always on)</span>}
+                      {isLocked && (
+                        <span className="text-xs text-[#718096] font-normal">
+                          (always enabled)
+                        </span>
+                      )}
                     </div>
-                    <div style={{ color: '#1F4591', fontSize: '0.8125rem', marginTop: '0.125rem' }}>{hint}</div>
+                    <div className="text-xs text-[#4A5568] mt-0.5">{hint}</div>
                   </div>
                 </label>
-              )
+              );
             })}
           </div>
         </section>
 
         {/* Invite link */}
-        <section>
-          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+        <section className="pt-6 border-t border-[#E2E8F0]">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#718096] mb-3">
             Invite link
           </h2>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.875rem 1rem',
-              background: '#F3F7FF',
-              borderRadius: '8px',
-              border: '1px solid #D1D9E6',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <span style={{ flex: 1, fontSize: '0.8125rem', color: '#1F4591', wordBreak: 'break-all' }}>
+          <div className="flex items-center gap-3 p-3 bg-[#F7F9FC] border border-[#CBD5E0] rounded-lg mb-3">
+            <span className="flex-1 text-xs font-mono text-[#061E47] break-all select-all">
               {inviteLink}
             </span>
             <Button variant="secondary" size="sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? "Copied" : "Copy link"}
             </Button>
           </div>
-          <p style={{ fontSize: '0.8125rem', color: '#68A4F1' }}>
-            Anyone with this link can preview the invitation. They&apos;ll need a Noma account to accept.
+          {copyFailed && (
+            <p className="text-xs text-[#FF6347] mb-2" role="alert">
+              Could not copy automatically. Please select and copy the link text above.
+            </p>
+          )}
+          <p className="text-xs text-[#718096] leading-relaxed">
+            Anyone with this link can view the invitation preview. They will need a Noma account to accept and join.
           </p>
         </section>
       </div>
     </AppShell>
-  )
+  );
 }

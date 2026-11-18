@@ -10,6 +10,7 @@ import React, {
 import {
   type Space,
   type SpaceType,
+  type Transaction,
   DEMO_SPACES,
   DEMO_CAMPAIGN,
 } from "./demo-data";
@@ -40,6 +41,14 @@ type Action =
   | { type: "SIGN_OUT" }
   | { type: "ADD_SPACE"; payload: Space }
   | { type: "UPDATE_SPACE"; payload: Space }
+  | {
+      type: "APPROVE_PAYOUT";
+      payload: { spaceId: string; payoutId: string; approverName: string };
+    }
+  | {
+      type: "REJECT_PAYOUT";
+      payload: { spaceId: string; payoutId: string };
+    }
   | { type: "SHOW_TOAST"; payload: ToastMessage }
   | { type: "DISMISS_TOAST"; payload: string }
   | { type: "COMPLETE_ONBOARDING" };
@@ -70,6 +79,73 @@ function reducer(state: AppState, action: Action): AppState {
           s.id === action.payload.id ? action.payload : s
         ),
       };
+    case "APPROVE_PAYOUT": {
+      const { spaceId, payoutId, approverName } = action.payload;
+      return {
+        ...state,
+        spaces: state.spaces.map((space) => {
+          if (space.id !== spaceId) return space;
+          const targetPayout = space.payoutRequests.find((p) => p.id === payoutId);
+          if (!targetPayout || targetPayout.status !== "pending") return space;
+
+          const alreadyApproved = targetPayout.approvalsReceived.includes(approverName);
+          const approvals = alreadyApproved
+            ? targetPayout.approvalsReceived
+            : [...targetPayout.approvalsReceived, approverName];
+          const isApproved = approvals.length >= targetPayout.approvalsRequired;
+
+          const updatedPayouts = space.payoutRequests.map((p) =>
+            p.id === payoutId
+              ? {
+                  ...p,
+                  approvalsReceived: approvals,
+                  status: isApproved ? ("approved" as const) : p.status,
+                }
+              : p
+          );
+
+          if (isApproved) {
+            const payoutTx: Transaction = {
+              id: `tx-${Date.now()}`,
+              date: new Date().toISOString().slice(0, 10),
+              type: "payout",
+              amount: targetPayout.amount,
+              currency: targetPayout.currency,
+              status: "completed",
+              memberName: targetPayout.requestedBy,
+              note: `Payout to ${targetPayout.destination}: ${targetPayout.reason}`,
+              reference: `NMA-PO-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+            };
+            return {
+              ...space,
+              savedAmount: Math.max(0, space.savedAmount - targetPayout.amount),
+              payoutRequests: updatedPayouts,
+              transactions: [...space.transactions, payoutTx],
+            };
+          }
+
+          return {
+            ...space,
+            payoutRequests: updatedPayouts,
+          };
+        }),
+      };
+    }
+    case "REJECT_PAYOUT": {
+      const { spaceId, payoutId } = action.payload;
+      return {
+        ...state,
+        spaces: state.spaces.map((space) => {
+          if (space.id !== spaceId) return space;
+          return {
+            ...space,
+            payoutRequests: space.payoutRequests.map((p) =>
+              p.id === payoutId ? { ...p, status: "rejected" as const } : p
+            ),
+          };
+        }),
+      };
+    }
     case "SHOW_TOAST":
       return { ...state, toasts: [...state.toasts, action.payload] };
     case "DISMISS_TOAST":
@@ -92,6 +168,8 @@ interface AppContextValue {
   signOut: () => void;
   addSpace: (space: Space) => void;
   updateSpace: (space: Space) => void;
+  approvePayout: (spaceId: string, payoutId: string, approverName: string) => void;
+  rejectPayout: (spaceId: string, payoutId: string) => void;
   showToast: (message: string, type?: ToastMessage["type"]) => void;
   dismissToast: (id: string) => void;
   completeOnboarding: () => void;
@@ -116,6 +194,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSpace = useCallback((space: Space) => {
     dispatch({ type: "UPDATE_SPACE", payload: space });
+  }, []);
+
+  const approvePayout = useCallback(
+    (spaceId: string, payoutId: string, approverName: string) => {
+      dispatch({
+        type: "APPROVE_PAYOUT",
+        payload: { spaceId, payoutId, approverName },
+      });
+    },
+    []
+  );
+
+  const rejectPayout = useCallback((spaceId: string, payoutId: string) => {
+    dispatch({
+      type: "REJECT_PAYOUT",
+      payload: { spaceId, payoutId },
+    });
   }, []);
 
   const showToast = useCallback(
@@ -145,6 +240,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         signOut,
         addSpace,
         updateSpace,
+        approvePayout,
+        rejectPayout,
         showToast,
         dismissToast,
         completeOnboarding,

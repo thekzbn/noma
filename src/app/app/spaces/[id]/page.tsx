@@ -78,7 +78,7 @@ export default function SpaceDetailPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const { state } = useApp();
+  const { state, approvePayout, rejectPayout, showToast } = useApp();
   const { user } = useAuth();
 
   const space = state.spaces.find((s) => s.id === id);
@@ -112,10 +112,16 @@ export default function SpaceDetailPage({
   }
 
   const pct = progressPercent(space.savedAmount, space.targetAmount);
-  const myMember = space.members.find((m) => m.id === "member-me");
+  const myMember = space.members.find(
+    (m) =>
+      (user?.email && m.email.toLowerCase() === user.email.toLowerCase()) ||
+      (user?.id && m.id === user.id) ||
+      m.id === "member-me"
+  );
   const canContribute = myMember?.permissions.canContribute ?? false;
   const canRequestPayout = myMember?.permissions.canRequestPayouts ?? false;
   const canInvite = myMember?.permissions.canInvite ?? false;
+  const canApprovePayout = myMember?.permissions.canApprovePayouts ?? false;
 
   const sortedTx = [...space.transactions].sort((a, b) =>
     a.date < b.date ? 1 : -1
@@ -278,33 +284,80 @@ export default function SpaceDetailPage({
       {space.payoutRequests.length > 0 && (
         <Section title="Payout requests" description="Withdrawal requests waiting for approval or recently processed.">
           <div className="divide-y divide-[#E2E8F0]">
-            {space.payoutRequests.map((req) => (
-              <div key={req.id} className="py-4 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-[#061E47]">
-                      {formatCurrency(req.amount, req.currency)}
-                    </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#FFF3CD] text-[#856404] font-medium capitalize">
-                      {req.status}
-                    </span>
+            {space.payoutRequests.map((req) => {
+              const hasApproved =
+                req.approvalsReceived.includes(myMember?.name ?? "") ||
+                req.approvalsReceived.includes(myMember?.id ?? "") ||
+                req.approvalsReceived.includes("member-me");
+
+              return (
+                <div key={req.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-[#061E47]">
+                        {formatCurrency(req.amount, req.currency)}
+                      </span>
+                      <span
+                        className={[
+                          "text-xs px-2 py-0.5 rounded-full font-medium capitalize",
+                          req.status === "approved"
+                            ? "bg-[#E8F5EE] text-[#2D7D4E]"
+                            : req.status === "rejected"
+                            ? "bg-[#FFECE8] text-[#FF6347]"
+                            : "bg-[#FFF3CD] text-[#856404]",
+                        ].join(" ")}
+                      >
+                        {req.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-[#4A5568] mt-1">{req.reason}</p>
+                    <p className="text-xs text-[#718096] mt-0.5">
+                      Requested by {req.requestedBy} for {req.destination}
+                    </p>
+                    {req.approvalsRequired > 0 && (
+                      <p className="text-xs text-[#1F4591] mt-1">
+                        {req.approvalsReceived.length} of {req.approvalsRequired} approvals confirmed
+                      </p>
+                    )}
                   </div>
-                  <p className="text-sm text-[#4A5568] mt-1">{req.reason}</p>
-                  <p className="text-xs text-[#718096] mt-0.5">
-                    Requested by {req.requestedBy} for {req.destination}
-                  </p>
+
+                  <div className="flex items-center gap-2 sm:shrink-0">
+                    {req.status === "pending" && canApprovePayout && (
+                      <>
+                        {hasApproved ? (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#2D7D4E]">
+                            Approved by you
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => {
+                                approvePayout(space.id, req.id, myMember?.name ?? "You");
+                                showToast("Payout request approved.", "success");
+                              }}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                rejectPayout(space.id, req.id);
+                                showToast("Payout request rejected.", "info");
+                              }}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="sm:text-right text-xs text-[#718096]">
-                  {req.approvalsRequired > 0 ? (
-                    <span>
-                      {req.approvalsReceived.length} of {req.approvalsRequired} approvals confirmed
-                    </span>
-                  ) : (
-                    <span>Direct release</span>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Section>
       )}

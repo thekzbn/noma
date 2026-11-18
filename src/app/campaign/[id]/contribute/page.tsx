@@ -1,369 +1,427 @@
-'use client'
+"use client";
 
-import { use, useState } from 'react'
-import Link from 'next/link'
-import { useApp } from '@/lib/store'
-import { DEMO_CAMPAIGN, formatCurrency, type DonorEntry } from '@/lib/demo-data'
-import { PublicNav } from '@/components/layout/PublicNav'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { use, useState } from "react";
+import Link from "next/link";
+import { useApp } from "@/lib/store";
+import { DEMO_CAMPAIGN, formatCurrency, type DonorEntry } from "@/lib/demo-data";
+import { PublicNav } from "@/components/layout/PublicNav";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
-type Step = 'amount' | 'identity' | 'payment' | 'review' | 'processing' | 'confirmed' | 'pending' | 'failed'
+type Step =
+  | "amount"
+  | "identity"
+  | "payment"
+  | "review"
+  | "processing"
+  | "confirmed"
+  | "pending"
+  | "failed";
 
-export default function CampaignContributePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const { state, updateSpace } = useApp()
+export default function CampaignContributePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { state, updateSpace } = useApp();
 
-  const space = state.spaces.find(s => s.id === id) ?? (id === DEMO_CAMPAIGN.id ? DEMO_CAMPAIGN : null)
+  const space =
+    state.spaces.find((s) => s.id === id) ??
+    (id === DEMO_CAMPAIGN.id ? DEMO_CAMPAIGN : null);
 
-  const [step, setStep] = useState<Step>('amount')
-  const [amount, setAmount] = useState('')
-  const [amountError, setAmountError] = useState('')
-  const [identity, setIdentity] = useState<'anonymous' | 'named'>('anonymous')
-  const [displayName, setDisplayName] = useState('')
-  const [nameError, setNameError] = useState('')
-  // payment details
-  const [cardName, setCardName] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [expiry, setExpiry] = useState('')
-  const [cvv, setCvv] = useState('')
-  const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({})
-  const [reference, setReference] = useState('')
+  const [step, setStep] = useState<Step>("amount");
+  const [amount, setAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
+  const [identity, setIdentity] = useState<"anonymous" | "named">("anonymous");
+  const [displayName, setDisplayName] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [contributorEmail, setContributorEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "bank" | "wallet">("card");
+  const [reference, setReference] = useState("");
 
-  if (!space || space.type !== 'campaign') {
+  if (!space || space.type !== "campaign") {
     return (
-      <>
+      <div className="flex flex-col min-h-screen bg-[#FEFEFE]">
         <PublicNav />
-        <main style={{ maxWidth: '32rem', margin: '0 auto', padding: '5rem 1rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '1rem' }}>Campaign not found</h1>
-          <Link href="/" style={{ color: '#2B6AD0' }}>Back to home</Link>
+        <main id="main-content" className="max-w-md mx-auto px-5 py-20 text-center flex-1">
+          <h1 className="text-2xl font-semibold text-[#061E47] mb-3">
+            Campaign not found
+          </h1>
+          <Link href="/" className="text-[#2B6AD0] hover:underline text-sm font-medium">
+            Back to home
+          </Link>
         </main>
-      </>
-    )
+      </div>
+    );
   }
 
-  const currentSpace = space
-  const parsedAmount = parseFloat(amount)
+  const currentSpace = space;
+  const parsedAmount = parseFloat(amount);
+  const quickAmounts = [10, 25, 50, 100];
 
   function validateAmount(): boolean {
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      setAmountError('Enter an amount greater than £0.')
-      return false
+      setAmountError(`Enter an amount greater than ${formatCurrency(0, currentSpace.currency)}.`);
+      return false;
     }
-    setAmountError('')
-    return true
+    setAmountError("");
+    return true;
   }
 
   function validateIdentity(): boolean {
-    if (identity === 'named' && !displayName.trim()) {
-      setNameError("Enter the name you'd like to show.")
-      return false
+    if (identity === "named" && !displayName.trim()) {
+      setNameError("Enter the name you would like to display.");
+      return false;
     }
-    setNameError('')
-    return true
-  }
-
-  function validatePayment(): boolean {
-    const e: Record<string, string> = {}
-    if (!cardName.trim()) e.cardName = 'Enter the name on the card.'
-    if (!cardNumber.trim() || cardNumber.replace(/\s/g, '').length < 12) e.cardNumber = 'Enter a valid card number.'
-    if (!expiry.trim() || !expiry.match(/^\d{2}\/\d{2}$/)) e.expiry = 'Enter expiry as MM/YY.'
-    if (!cvv.trim() || cvv.length < 3) e.cvv = 'Enter a 3 or 4-digit CVV.'
-    setPaymentErrors(e)
-    return Object.keys(e).length === 0
+    setNameError("");
+    return true;
   }
 
   function simulatePayment() {
-    setStep('processing')
+    setStep("processing");
     setTimeout(() => {
-      const ref = 'NMA-CAM-' + Math.random().toString(36).slice(2, 9).toUpperCase()
-      setReference(ref)
+      const ref = "NMA-CAM-" + Math.random().toString(36).slice(2, 9).toUpperCase();
+      setReference(ref);
 
-      const chosenName = identity === 'anonymous' ? 'Anonymous' : displayName.trim()
+      const chosenName = identity === "anonymous" ? "Anonymous" : displayName.trim();
       const newDonor: DonorEntry = {
-        id: 'donor-' + Date.now(),
+        id: "donor-" + Date.now(),
         displayName: chosenName,
         amount: parsedAmount,
         currency: currentSpace.currency,
         date: new Date().toISOString().slice(0, 10),
-        status: 'completed',
-      }
+        status: "completed",
+      };
 
-      // Update space in state
       const updated = {
         ...currentSpace,
         savedAmount: currentSpace.savedAmount + parsedAmount,
         donors: [...(currentSpace.donors ?? []), newDonor],
-      }
-      updateSpace(updated)
+      };
+      updateSpace(updated);
 
-      setStep('confirmed')
-    }, 1200)
+      setStep("confirmed");
+    }, 1200);
   }
 
-  const stepMap: Record<string, number> = { amount: 1, identity: 2, payment: 3, review: 4 }
-  const stepNumber = stepMap[step]
-
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-[#FEFEFE]">
       <PublicNav />
-      <main style={{ maxWidth: '32rem', margin: '0 auto', padding: '2.5rem 1rem' }}>
-        <Link
-          href={`/campaign/${id}`}
-          style={{ color: '#2B6AD0', fontSize: '0.875rem', display: 'inline-block', marginBottom: '1.5rem' }}
-        >
-          ← {space.name}
-        </Link>
-
-        {/* Step indicator */}
-        {stepNumber && (
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-            {[1, 2, 3, 4].map(n => (
-              <div
-                key={n}
-                style={{
-                  height: '3px',
-                  flex: 1,
-                  borderRadius: '2px',
-                  background: n <= stepNumber ? '#2B6AD0' : '#E8EEF7',
-                }}
-              />
-            ))}
-          </div>
+      <main id="main-content" className="max-w-lg mx-auto px-5 py-12 flex-1 w-full">
+        {/* Back Link */}
+        {(step === "amount" || step === "identity" || step === "payment" || step === "review") && (
+          <Link
+            href={`/campaign/${id}`}
+            className="text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] mb-6 inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+          >
+            ← {space.name}
+          </Link>
         )}
 
         {/* STEP 1: Amount */}
-        {step === 'amount' && (
-          <>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
-              How much would you like to give?
+        {step === "amount" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
+              Contribute to {space.name}
             </h1>
-            <p style={{ color: '#4A5568', marginBottom: '2rem', fontSize: '0.9375rem' }}>
-              Contributing to: {space.name}
+            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
+              Every contribution directly supports {space.beneficiary || space.name}.
             </p>
-            <div style={{ marginBottom: '1.5rem' }}>
+
+            <div className="mb-4">
               <Input
-                label="Contribution amount (£)"
+                label={`Contribution amount (${space.currency})`}
                 type="number"
                 min="1"
-                step="1"
+                step="any"
                 placeholder="0"
                 value={amount}
-                onChange={e => { setAmount(e.target.value); setAmountError('') }}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setAmountError("");
+                }}
                 error={amountError}
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-              {[10, 25, 50, 100].map(n => (
+
+            <div className="flex gap-2 flex-wrap mb-8">
+              {quickAmounts.map((n) => (
                 <button
                   key={n}
                   type="button"
-                  onClick={() => { setAmount(String(n)); setAmountError('') }}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: '99px',
-                    border: `1.5px solid ${parseFloat(amount) === n ? '#2B6AD0' : '#D1D9E6'}`,
-                    background: parseFloat(amount) === n ? '#EEF4FF' : '#FEFEFE',
-                    color: parseFloat(amount) === n ? '#1F4591' : '#4A5568',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
+                  onClick={() => {
+                    setAmount(String(n));
+                    setAmountError("");
                   }}
+                  className={[
+                    "px-4 py-2 rounded-full border text-sm font-medium cursor-pointer transition-colors",
+                    parseFloat(amount) === n
+                      ? "border-[#2B6AD0] bg-[#EBF2FC] text-[#1F4591]"
+                      : "border-[#CBD5E0] bg-white text-[#4A5568] hover:border-[#68A4F1]",
+                  ].join(" ")}
                 >
-                  £{n}
+                  {formatCurrency(n, space.currency)}
                 </button>
               ))}
             </div>
-            <Button variant="primary" size="lg" fullWidth onClick={() => { if (validateAmount()) setStep('identity') }}>
+
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={() => {
+                if (validateAmount()) setStep("identity");
+              }}
+            >
               Continue
             </Button>
-          </>
+          </div>
         )}
 
         {/* STEP 2: Identity */}
-        {step === 'identity' && (
-          <>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
-              How would you like to appear?
+        {step === "identity" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
+              Public attribution
             </h1>
-            <p style={{ color: '#4A5568', marginBottom: '2rem', fontSize: '0.9375rem' }}>
+            <p className="text-sm text-[#4A5568] mb-8">
               Your contribution of {formatCurrency(parsedAmount, space.currency)} will be recorded in the campaign ledger.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              {(['anonymous', 'named'] as const).map(opt => (
+            <div className="flex flex-col gap-3 mb-6">
+              {(["anonymous", "named"] as const).map((opt) => (
                 <label
                   key={opt}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.75rem',
-                    cursor: 'pointer',
-                    padding: '0.875rem 1rem',
-                    border: `1.5px solid ${identity === opt ? '#2B6AD0' : '#D1D9E6'}`,
-                    borderRadius: '8px',
-                    background: identity === opt ? '#EEF4FF' : '#FEFEFE',
-                  }}
+                  className={[
+                    "flex items-start gap-3.5 p-3.5 rounded-lg border cursor-pointer select-none transition-colors",
+                    identity === opt
+                      ? "border-[#2B6AD0] bg-[#EBF2FC]"
+                      : "border-[#CBD5E0] hover:border-[#68A4F1] bg-white",
+                  ].join(" ")}
                 >
                   <input
                     type="radio"
                     name="identity"
                     value={opt}
                     checked={identity === opt}
-                    onChange={() => { setIdentity(opt); setNameError('') }}
-                    style={{ accentColor: '#2B6AD0', marginTop: '0.1875rem' }}
+                    onChange={() => {
+                      setIdentity(opt);
+                      setNameError("");
+                    }}
+                    className="accent-[#2B6AD0] mt-1 h-4 w-4"
                   />
                   <div>
-                    <div style={{ color: '#061E47', fontWeight: 500 }}>
-                      {opt === 'anonymous' ? 'Show as Anonymous' : 'Show my name'}
+                    <div className="text-sm font-medium text-[#061E47]">
+                      {opt === "anonymous" ? "Show as Anonymous" : "Show my name"}
                     </div>
-                    <div style={{ color: '#718096', fontSize: '0.8125rem', marginTop: '0.125rem' }}>
-                      {opt === 'anonymous'
-                        ? 'Your contribution appears publicly as "Anonymous".'
-                        : 'Your full name will be displayed next to your contribution.'}
+                    <div className="text-xs text-[#718096] mt-0.5">
+                      {opt === "anonymous"
+                        ? "Your contribution appears publicly as Anonymous."
+                        : "Your full name will be shown publicly in the donor ledger."}
                     </div>
                   </div>
                 </label>
               ))}
             </div>
 
-            {identity === 'named' && (
-              <div style={{ marginBottom: '1.5rem' }}>
+            {identity === "named" && (
+              <div className="mb-6">
                 <Input
                   label="Name to display"
                   type="text"
                   placeholder="Your full name"
                   value={displayName}
-                  onChange={e => { setDisplayName(e.target.value); setNameError('') }}
+                  onChange={(e) => {
+                    setDisplayName(e.target.value);
+                    setNameError("");
+                  }}
                   error={nameError}
                 />
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('amount')}>Back</Button>
-              <Button variant="primary" fullWidth onClick={() => { if (validateIdentity()) setStep('payment') }}>Continue</Button>
-            </div>
-          </>
-        )}
-
-        {/* STEP 3: Payment */}
-        {step === 'payment' && (
-          <>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
-              Payment information
-            </h1>
-            <p style={{ color: '#4A5568', fontSize: '0.875rem', marginBottom: '2rem' }}>
-              Payments are securely encrypted and processed directly.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
+            <div className="mb-8">
               <Input
-                label="Name on card"
-                type="text"
-                placeholder="Cardholder name"
-                value={cardName}
-                onChange={e => { setCardName(e.target.value); setPaymentErrors(p => ({ ...p, cardName: '' })) }}
-                error={paymentErrors.cardName}
+                label="Email address for receipt (optional)"
+                type="email"
+                placeholder="you@example.com"
+                value={contributorEmail}
+                onChange={(e) => setContributorEmail(e.target.value)}
+                hint="We will send your payment receipt to this address."
               />
-              <Input
-                label="Card number"
-                type="text"
-                placeholder="0000 0000 0000 0000"
-                value={cardNumber}
-                onChange={e => { setCardNumber(e.target.value); setPaymentErrors(p => ({ ...p, cardNumber: '' })) }}
-                error={paymentErrors.cardNumber}
-              />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <Input
-                  label="Expiry (MM/YY)"
-                  type="text"
-                  placeholder="MM/YY"
-                  value={expiry}
-                  onChange={e => { setExpiry(e.target.value); setPaymentErrors(p => ({ ...p, expiry: '' })) }}
-                  error={paymentErrors.expiry}
-                />
-                <Input
-                  label="Security code (CVV)"
-                  type="text"
-                  placeholder="123"
-                  value={cvv}
-                  onChange={e => { setCvv(e.target.value); setPaymentErrors(p => ({ ...p, cvv: '' })) }}
-                  error={paymentErrors.cvv}
-                />
-              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('identity')}>Back</Button>
-              <Button variant="primary" fullWidth onClick={() => { if (validatePayment()) setStep('review') }}>Review</Button>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("amount")}>
+                Back
+              </Button>
+              <Button
+                variant="primary"
+                fullWidth
+                onClick={() => {
+                  if (validateIdentity()) setStep("payment");
+                }}
+              >
+                Continue
+              </Button>
             </div>
-          </>
-        )}
-
-        {/* STEP 4: Review */}
-        {step === 'review' && (
-          <>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '1.75rem' }}>
-              Review contribution
-            </h1>
-            <dl style={{ marginBottom: '1.5rem' }}>
-              {[
-                ['Campaign', space.name],
-                ['Contribution amount', formatCurrency(parsedAmount, space.currency)],
-                ['Display identity', identity === 'anonymous' ? 'Anonymous' : displayName],
-                ['Processing fee', '£0.00 (Covered by campaign)'],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  style={{ display: 'flex', justifyContent: 'space-between', padding: '0.875rem 0', borderBottom: '1px solid #E8EEF7' }}
-                >
-                  <dt style={{ color: '#718096', fontSize: '0.875rem' }}>{label}</dt>
-                  <dd style={{ color: '#061E47', fontWeight: 600 }}>{value}</dd>
-                </div>
-              ))}
-            </dl>
-            <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '2rem' }}>
-              By confirming, your payment will be authorised and added immediately to the campaign total.
-            </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('payment')}>Back</Button>
-              <Button variant="primary" fullWidth onClick={simulatePayment}>Confirm and pay</Button>
-            </div>
-          </>
-        )}
-
-        {/* Processing */}
-        {step === 'processing' && (
-          <div style={{ textAlign: 'center', paddingTop: '4rem' }}>
-            <div style={{ width: '2.5rem', height: '2.5rem', border: '3px solid #E8EEF7', borderTopColor: '#2B6AD0', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1.5rem' }} />
-            <p style={{ color: '#061E47', fontWeight: 500 }}>Authorising payment…</p>
           </div>
         )}
 
-        {/* Confirmed */}
-        {step === 'confirmed' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#EDFAF3', color: '#3CB371', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>✓</span>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
-              Contribution confirmed
+        {/* STEP 3: Payment Method Selection */}
+        {step === "payment" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
+              Select payment method
             </h1>
-            <p style={{ color: '#4A5568', marginBottom: '1.75rem' }}>
-              Your contribution of {formatCurrency(parsedAmount, space.currency)} to {space.name} has been processed.
+            <p className="text-sm text-[#4A5568] mb-8">
+              All transactions are encrypted and processed through verified payment providers.
             </p>
-            <dl style={{ marginBottom: '2rem' }}>
+
+            <fieldset className="mb-8 border-none p-0">
+              <legend className="sr-only">Choose payment method</legend>
+              <div className="flex flex-col gap-3">
+                {[
+                  {
+                    id: "card",
+                    title: "Debit or credit card",
+                    desc: "Visa, Mastercard, American Express, Verve",
+                  },
+                  {
+                    id: "bank",
+                    title: "Instant bank transfer",
+                    desc: "Direct bank authorization via open banking",
+                  },
+                  {
+                    id: "wallet",
+                    title: "Apple Pay or Google Pay",
+                    desc: "Fast, contactless checkout from your device",
+                  },
+                ].map((m) => (
+                  <label
+                    key={m.id}
+                    className={[
+                      "flex items-start gap-3.5 p-3.5 rounded-lg border cursor-pointer select-none transition-colors",
+                      paymentMethod === m.id
+                        ? "border-[#2B6AD0] bg-[#EBF2FC]"
+                        : "border-[#CBD5E0] hover:border-[#68A4F1] bg-white",
+                    ].join(" ")}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={m.id}
+                      checked={paymentMethod === m.id}
+                      onChange={() => setPaymentMethod(m.id as "card" | "bank" | "wallet")}
+                      className="accent-[#2B6AD0] mt-1 h-4 w-4"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-[#061E47] block">
+                        {m.title}
+                      </span>
+                      <span className="text-xs text-[#718096] mt-0.5 block">
+                        {m.desc}
+                      </span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("identity")}>
+                Back
+              </Button>
+              <Button variant="primary" fullWidth onClick={() => setStep("review")}>
+                Review contribution
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: Review */}
+        {step === "review" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-6">
+              Review contribution
+            </h1>
+            <dl className="divide-y divide-[#E2E8F0] mb-8">
               {[
-                ['Reference code', reference],
-                ['Public attribution', identity === 'anonymous' ? 'Anonymous' : displayName],
-                ['Total contributed', formatCurrency(parsedAmount, space.currency)],
-              ].map(([label, value]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid #E8EEF7' }}>
-                  <dt style={{ color: '#718096', fontSize: '0.875rem' }}>{label}</dt>
-                  <dd style={{ color: '#061E47', fontWeight: 600 }}>{value}</dd>
+                ["Campaign", space.name],
+                ["Contribution amount", formatCurrency(parsedAmount, space.currency)],
+                ["Public identity", identity === "anonymous" ? "Anonymous" : displayName],
+                [
+                  "Payment method",
+                  paymentMethod === "card"
+                    ? "Debit or credit card"
+                    : paymentMethod === "bank"
+                    ? "Instant bank transfer"
+                    : "Digital wallet",
+                ],
+                ["Processing fee", `${formatCurrency(0, space.currency)} (Covered by campaign)`],
+              ].map(([lbl, val]) => (
+                <div
+                  key={lbl}
+                  className="flex items-center justify-between py-3.5 text-sm"
+                >
+                  <dt className="text-[#4A5568]">{lbl}</dt>
+                  <dd className="font-semibold text-[#061E47]">{val}</dd>
                 </div>
               ))}
             </dl>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <p className="text-xs text-[#718096] mb-8 leading-relaxed">
+              By confirming, your contribution will be processed and credited directly to the campaign.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("payment")}>
+                Back
+              </Button>
+              <Button variant="primary" fullWidth onClick={simulatePayment}>
+                Confirm and pay
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP: Processing */}
+        {step === "processing" && (
+          <div className="text-center py-16">
+            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" />
+            <p className="text-base font-semibold text-[#061E47]">
+              Authorising contribution
+            </p>
+          </div>
+        )}
+
+        {/* STEP: Confirmed */}
+        {step === "confirmed" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#2D7D4E] flex items-center justify-center font-bold text-xl mb-6">
+              ✓
+            </div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
+              Contribution confirmed
+            </h1>
+            <p className="text-sm text-[#4A5568] mb-8">
+              Your contribution of {formatCurrency(parsedAmount, space.currency)} to {space.name} has been completed.
+            </p>
+            <dl className="divide-y divide-[#E2E8F0] mb-8">
+              {[
+                ["Reference code", reference],
+                ["Public attribution", identity === "anonymous" ? "Anonymous" : displayName],
+                ["Total contributed", formatCurrency(parsedAmount, space.currency)],
+              ].map(([lbl, val]) => (
+                <div
+                  key={lbl}
+                  className="flex items-center justify-between py-3 text-sm"
+                >
+                  <dt className="text-[#4A5568]">{lbl}</dt>
+                  <dd className="font-mono text-xs text-[#061E47]">{val}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="flex gap-3 flex-wrap">
               <Link href={`/campaign/${id}`}>
                 <Button variant="primary">Return to campaign</Button>
               </Link>
@@ -374,15 +432,17 @@ export default function CampaignContributePage({ params }: { params: Promise<{ i
           </div>
         )}
 
-        {/* Pending */}
-        {step === 'pending' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FFF8E6', color: '#C17D00', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.1rem', marginBottom: '1.5rem' }}>⏱</span>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+        {/* STEP: Pending */}
+        {step === "pending" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#FFF8E6] text-[#856404] flex items-center justify-center font-bold text-xl mb-6">
+              ⏱
+            </div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
               Payment pending verification
             </h1>
-            <p style={{ color: '#4A5568', marginBottom: '2rem' }}>
-              Your payment has been submitted. As soon as the transaction settles, the campaign ledger will update automatically.
+            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
+              Your contribution has been submitted. As soon as the transaction settles, the campaign ledger will update automatically.
             </p>
             <Link href={`/campaign/${id}`}>
               <Button variant="secondary">Back to campaign</Button>
@@ -390,23 +450,29 @@ export default function CampaignContributePage({ params }: { params: Promise<{ i
           </div>
         )}
 
-        {/* Failed */}
-        {step === 'failed' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FFF1EE', color: '#FF6347', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.5rem' }}>✕</span>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
-              Payment declined
+        {/* STEP: Failed */}
+        {step === "failed" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#FF6347] flex items-center justify-center font-bold text-xl mb-6">
+              ✕
+            </div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
+              Payment unsuccessful
             </h1>
-            <p style={{ color: '#4A5568', marginBottom: '2rem' }}>
-              The payment could not be completed. No money was taken from your account. Please check your card details and try again.
+            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
+              The payment could not be completed. No money was taken from your account. Please check your payment details and try again.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('payment')}>Try again</Button>
-              <Link href={`/campaign/${id}`}><Button variant="ghost">Cancel</Button></Link>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("payment")}>
+                Try again
+              </Button>
+              <Link href={`/campaign/${id}`}>
+                <Button variant="ghost">Cancel</Button>
+              </Link>
             </div>
           </div>
         )}
       </main>
-    </>
-  )
+    </div>
+  );
 }

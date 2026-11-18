@@ -1,237 +1,307 @@
-'use client'
+"use client";
 
-import { use, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useSpaces, useApp } from '@/lib/store'
-import { formatCurrency, type PayoutRequest } from '@/lib/demo-data'
-import { AppShell } from '@/components/layout/AppShell'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { use, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSpaces, useApp, useAuth } from "@/lib/store";
+import { formatCurrency, type PayoutRequest } from "@/lib/demo-data";
+import { AppShell } from "@/components/layout/AppShell";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
-type Step = 'form' | 'review' | 'processing' | 'pending' | 'confirmed'
+type Step = "form" | "review" | "processing" | "pending" | "confirmed";
 
-export default function PayoutPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const router = useRouter()
-  const { spaces, updateSpace } = useSpaces()
-  const { showToast } = useApp()
+export default function PayoutPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const router = useRouter();
+  const { spaces, updateSpace } = useSpaces();
+  const { showToast } = useApp();
+  const { user } = useAuth();
 
-  const space = spaces.find(s => s.id === id)
+  const space = spaces.find((s) => s.id === id);
 
-  const [step, setStep] = useState<Step>('form')
-  const [amount, setAmount] = useState('')
-  const [destination, setDestination] = useState('')
-  const [reason, setReason] = useState('')
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [step, setStep] = useState<Step>("form");
+  const [amount, setAmount] = useState("");
+  const [destination, setDestination] = useState("");
+  const [reason, setReason] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   if (!space) {
     return (
       <AppShell>
-        <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '4rem 1rem' }}>
-          <p style={{ color: '#061E47', marginBottom: '1rem' }}>Space not found.</p>
-          <Link href="/app" style={{ color: '#2B6AD0' }}>Back to spaces</Link>
+        <div className="max-w-md mx-auto py-16 text-center">
+          <p className="text-[#061E47] mb-4">Space not found.</p>
+          <Link
+            href="/app"
+            className="text-[#2B6AD0] hover:underline text-sm font-medium"
+          >
+            Back to spaces
+          </Link>
         </div>
       </AppShell>
-    )
+    );
   }
 
-  const currentSpace = space
-  const parsedAmount = parseFloat(amount)
-  const needsApproval = currentSpace.type === 'community' || currentSpace.type === ('ajo' as string)
+  const currentSpace = space;
+  const parsedAmount = parseFloat(amount);
+  const needsApproval =
+    currentSpace.type === "community" ||
+    currentSpace.type === "shared" ||
+    (currentSpace.governanceThreshold ?? 0) > 1;
+
+  // Subtract pending payouts to calculate available balance
+  const pendingPayoutsTotal = currentSpace.payoutRequests
+    .filter((p) => p.status === "pending")
+    .reduce((sum, p) => sum + p.amount, 0);
+  const availableBalance = Math.max(0, currentSpace.savedAmount - pendingPayoutsTotal);
 
   function validate(): boolean {
-    const e: Record<string, string> = {}
-    if (!amount || isNaN(parsedAmount) || parsedAmount <= 0)
-      e.amount = 'Enter an amount greater than £0.'
-    else if (parsedAmount > currentSpace.savedAmount + 0.001)
-      e.amount = `Available balance is ${formatCurrency(currentSpace.savedAmount, currentSpace.currency)}.`
-    if (!destination.trim()) e.destination = 'Enter a destination account or name.'
-    if (!reason.trim()) e.reason = 'Explain why you are requesting this payout.'
-    setErrors(e)
-    return Object.keys(e).length === 0
+    const e: Record<string, string> = {};
+    if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      e.amount = `Enter an amount greater than ${formatCurrency(0, currentSpace.currency)}.`;
+    } else if (parsedAmount > availableBalance + 0.001) {
+      e.amount = `Available balance for withdrawal is ${formatCurrency(
+        availableBalance,
+        currentSpace.currency
+      )}.`;
+    }
+    if (!destination.trim()) e.destination = "Enter a destination account or recipient name.";
+    if (!reason.trim()) e.reason = "Explain why you are requesting this payout.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   }
 
   function handleSubmit() {
-    if (!validate()) return
-    setStep('review')
+    if (!validate()) return;
+    setStep("review");
   }
 
   function handleConfirm() {
-    setStep('processing')
+    setStep("processing");
     setTimeout(() => {
+      const requesterName = user?.name || "You";
       const newPayout: PayoutRequest = {
-        id: 'payout-' + Date.now(),
-        requestedBy: 'You (demo)',
-        requestedAt: new Date().toISOString(),
+        id: "payout-" + Date.now(),
+        requestedBy: requesterName,
+        requestedAt: new Date().toISOString().slice(0, 10),
         amount: parsedAmount,
         currency: currentSpace.currency,
         destination,
         reason,
-        status: needsApproval ? 'pending' : 'approved',
+        status: needsApproval ? "pending" : "approved",
         approvalsRequired: needsApproval ? (currentSpace.governanceThreshold ?? 2) : 0,
-        approvalsReceived: [],
-      }
+        approvalsReceived: needsApproval ? [requesterName] : [],
+      };
 
       updateSpace({
         ...currentSpace,
-        savedAmount: needsApproval ? currentSpace.savedAmount : currentSpace.savedAmount - parsedAmount,
+        savedAmount: needsApproval
+          ? currentSpace.savedAmount
+          : currentSpace.savedAmount - parsedAmount,
         payoutRequests: [...currentSpace.payoutRequests, newPayout],
-      })
+      });
 
       showToast(
         needsApproval
-          ? 'Payout request submitted — awaiting approval.'
+          ? "Payout request submitted for approval."
           : `${formatCurrency(parsedAmount, currentSpace.currency)} payout confirmed.`,
-        'success'
-      )
+        "success"
+      );
 
-      setStep(needsApproval ? 'pending' : 'confirmed')
-    }, 1600)
+      setStep(needsApproval ? "pending" : "confirmed");
+    }, 1200);
   }
 
   return (
     <AppShell>
-      <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '2.5rem 1rem' }}>
-        {(step === 'form' || step === 'review') && (
-          <Link href={`/app/spaces/${id}`} style={{ color: '#2B6AD0', fontSize: '0.875rem', display: 'inline-block', marginBottom: '1.5rem' }}>
+      <div className="max-w-lg mx-auto py-6">
+        {(step === "form" || step === "review") && (
+          <Link
+            href={`/app/spaces/${id}`}
+            className="text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] mb-6 inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+          >
             ← {space.name}
           </Link>
         )}
 
         {/* STEP: Form */}
-        {step === 'form' && (
-          <>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.25rem' }}>
+        {step === "form" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-1.5">
               Request a payout
             </h1>
-            <p style={{ color: '#1F4591', marginBottom: '0.375rem', fontSize: '0.9375rem' }}>
-              Available: {formatCurrency(space.savedAmount, space.currency)}
+            <p className="text-sm text-[#4A5568] mb-1">
+              Available balance: {formatCurrency(availableBalance, space.currency)}
             </p>
+            {pendingPayoutsTotal > 0 && (
+              <p className="text-xs text-[#718096] mb-3">
+                ({formatCurrency(pendingPayoutsTotal, space.currency)} currently reserved in pending payout requests)
+              </p>
+            )}
             {needsApproval && (
-              <p style={{ color: '#68A4F1', fontSize: '0.875rem', marginBottom: '2rem' }}>
+              <p className="text-xs text-[#1F4591] bg-[#EBF2FC] p-3 rounded-lg mb-6">
                 This space requires {space.governanceThreshold ?? 2} member approvals before a payout is released.
               </p>
             )}
-            {!needsApproval && <div style={{ marginBottom: '2rem' }} />}
+            {!needsApproval && <div className="mb-6" />}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
+            <div className="flex flex-col gap-5 mb-8">
               <Input
-                label="Amount (£)"
+                label={`Amount (${space.currency})`}
                 type="number"
                 min="0.01"
                 step="0.01"
                 placeholder="0.00"
                 value={amount}
-                onChange={e => { setAmount(e.target.value); setErrors(prev => ({ ...prev, amount: '' })) }}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setErrors((prev) => ({ ...prev, amount: "" }));
+                }}
                 error={errors.amount}
               />
               <Input
                 label="Destination"
                 type="text"
-                placeholder="Account name or reference"
+                placeholder="Bank account name and reference"
                 value={destination}
-                onChange={e => { setDestination(e.target.value); setErrors(prev => ({ ...prev, destination: '' })) }}
+                onChange={(e) => {
+                  setDestination(e.target.value);
+                  setErrors((prev) => ({ ...prev, destination: "" }));
+                }}
                 error={errors.destination}
-                hint="Where the funds should be sent"
+                hint="Where the funds should be sent upon release"
               />
               <Input
                 label="Reason"
                 type="text"
                 placeholder="Why are you requesting this payout?"
                 value={reason}
-                onChange={e => { setReason(e.target.value); setErrors(prev => ({ ...prev, reason: '' })) }}
+                onChange={(e) => {
+                  setReason(e.target.value);
+                  setErrors((prev) => ({ ...prev, reason: "" }));
+                }}
                 error={errors.reason}
               />
             </div>
 
-            <Button variant="primary" size="lg" fullWidth onClick={handleSubmit}>
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={handleSubmit}
+            >
               Review request
             </Button>
-          </>
+          </div>
         )}
 
         {/* STEP: Review */}
-        {step === 'review' && (
-          <>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '1.75rem' }}>
+        {step === "review" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-6">
               Review payout request
             </h1>
-            <dl style={{ marginBottom: '1.5rem' }}>
+
+            <dl className="divide-y divide-[#E2E8F0] mb-8">
               {[
-                ['Space', space.name],
-                ['Amount', formatCurrency(parsedAmount, space.currency)],
-                ['Destination', destination],
-                ['Reason', reason],
-                ['Approvals needed', needsApproval ? `${space.governanceThreshold ?? 2} members` : 'None (direct release)'],
-              ].map(([label, value]) => (
+                ["Space", space.name],
+                ["Amount", formatCurrency(parsedAmount, space.currency)],
+                ["Destination", destination],
+                ["Reason", reason],
+                [
+                  "Approvals needed",
+                  needsApproval
+                    ? `${space.governanceThreshold ?? 2} members`
+                    : "None (direct release)",
+                ],
+              ].map(([lbl, val]) => (
                 <div
-                  key={label}
-                  style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid #E8EEF7' }}
+                  key={lbl}
+                  className="flex items-center justify-between py-3 text-sm"
                 >
-                  <dt style={{ color: '#1F4591', fontSize: '0.875rem' }}>{label}</dt>
-                  <dd style={{ color: '#061E47', fontWeight: 500, maxWidth: '55%', textAlign: 'right' }}>{value}</dd>
+                  <dt className="text-[#4A5568]">{lbl}</dt>
+                  <dd className="font-semibold text-[#061E47] text-right max-w-[60%]">
+                    {val}
+                  </dd>
                 </div>
               ))}
             </dl>
-            <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '2rem' }}>
-              Payouts are disbursed according to the governance rules established for this space.
+
+            <p className="text-xs text-[#718096] mb-8 leading-relaxed">
+              Payouts are disbursed strictly according to the governance rules established for this space.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('form')}>Back</Button>
-              <Button variant="primary" fullWidth onClick={handleConfirm}>Submit request</Button>
+
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("form")}>
+                Back
+              </Button>
+              <Button variant="primary" fullWidth onClick={handleConfirm}>
+                Submit request
+              </Button>
             </div>
-          </>
+          </div>
         )}
 
         {/* STEP: Processing */}
-        {step === 'processing' && (
-          <div style={{ textAlign: 'center', paddingTop: '4rem' }}>
-            <div style={{ width: '2.5rem', height: '2.5rem', border: '3px solid #E8EEF7', borderTopColor: '#2B6AD0', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1.5rem' }} />
-            <p style={{ color: '#061E47', fontWeight: 500 }}>Submitting request…</p>
+        {step === "processing" && (
+          <div className="text-center py-16">
+            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" />
+            <p className="text-base font-semibold text-[#061E47]">
+              Submitting payout request
+            </p>
           </div>
         )}
 
         {/* STEP: Pending */}
-        {step === 'pending' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FFF8E6', color: '#C17D00', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.1rem' }}>⏱</span>
+        {step === "pending" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#FFF8E6] text-[#856404] flex items-center justify-center font-bold text-xl mb-6">
+              ⏱
             </div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
               Request submitted
             </h1>
-            <p style={{ color: '#1F4591', marginBottom: '0.75rem' }}>
-              Your payout request for {formatCurrency(parsedAmount, space.currency)} is waiting for{' '}
-              {space.governanceThreshold ?? 2} member approvals. You&apos;ll see it in the space activity once approved.
+            <p className="text-sm text-[#4A5568] mb-4 leading-relaxed">
+              Your payout request for {formatCurrency(parsedAmount, space.currency)} is waiting for{" "}
+              {space.governanceThreshold ?? 2} member approvals. It will be recorded in the space activity once approved.
             </p>
-            <p style={{ color: '#68A4F1', fontSize: '0.875rem', marginBottom: '2rem' }}>
-              Members with approval permission will be notified.
+            <p className="text-xs text-[#718096] mb-8">
+              Members with approval permissions have been notified to review this request.
             </p>
-            <Button variant="primary" onClick={() => router.push(`/app/spaces/${id}`)}>
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/app/spaces/${id}`)}
+            >
               Back to space
             </Button>
           </div>
         )}
 
         {/* STEP: Confirmed */}
-        {step === 'confirmed' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#EDFAF3', color: '#3CB371', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.25rem', fontWeight: 700 }}>✓</span>
+        {step === "confirmed" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#2D7D4E] flex items-center justify-center font-bold text-xl mb-6">
+              ✓
             </div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
               Payout confirmed
             </h1>
-            <p style={{ color: '#1F4591', marginBottom: '2rem' }}>
+            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
               {formatCurrency(parsedAmount, space.currency)} will be sent to {destination}.
             </p>
-            <Button variant="primary" onClick={() => router.push(`/app/spaces/${id}`)}>
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/app/spaces/${id}`)}
+            >
               Back to space
             </Button>
           </div>
         )}
       </div>
     </AppShell>
-  )
+  );
 }

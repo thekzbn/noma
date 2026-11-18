@@ -8,7 +8,7 @@ export default function HowItWorksPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#FEFEFE]">
       <PublicNav />
-      <main className="flex-1 max-w-3xl mx-auto px-5 py-16">
+      <main id="main-content" className="flex-1 max-w-3xl mx-auto px-5 py-16">
         <h1 className="text-3xl font-semibold text-[#061E47] mb-4 tracking-tight">
           How noma. works
         </h1>

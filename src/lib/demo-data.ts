@@ -542,7 +542,66 @@ export const DEMO_INVITATIONS: Record<string, InvitationPreview> = {
     },
     expiresAt: "2026-12-31",
   },
+  "inv-ajo-001": {
+    token: "inv-ajo-001",
+    spaceId: "space-3",
+    spaceName: "Islington Ajo circle",
+    spaceType: "community",
+    purpose:
+      "Monthly rotating savings group. Each cycle, one member receives the full pot.",
+    invitedBy: "You",
+    invitedByEmail: "you@example.com",
+    rules: [
+      "Each member contributes £500 on the 1st of every month",
+      "Payout order decided by ballot at group formation",
+      "Late contributions carry a £10 penalty agreed at formation",
+      "Missing two consecutive payments results in removal",
+    ],
+    permissionsRequested: {
+      canView: true,
+      canContribute: true,
+      canInvite: false,
+      canApprovePayouts: true,
+    },
+    expiresAt: "2027-06-30",
+  },
 };
+
+export function getInvitationPreview(
+  token: string,
+  spaces: Space[]
+): InvitationPreview | null {
+  if (DEMO_INVITATIONS[token]) {
+    return DEMO_INVITATIONS[token];
+  }
+
+  const cleanId = token.startsWith("inv-") ? token.slice(4) : token;
+  const matchedSpace = spaces.find((s) => s.id === cleanId || s.id === token);
+  if (matchedSpace) {
+    const owner =
+      matchedSpace.members.find((m) => m.role === "owner") ||
+      matchedSpace.members[0];
+    return {
+      token,
+      spaceId: matchedSpace.id,
+      spaceName: matchedSpace.name,
+      spaceType: matchedSpace.type,
+      purpose: matchedSpace.purpose,
+      invitedBy: owner?.name ?? "A space member",
+      invitedByEmail: owner?.email ?? "member@noma.app",
+      rules: matchedSpace.rules,
+      permissionsRequested: {
+        canView: true,
+        canContribute: true,
+        canInvite: false,
+        canApprovePayouts: false,
+      },
+      expiresAt: "2027-12-31",
+    };
+  }
+
+  return null;
+}
 
 // Helpers
 export function formatCurrency(amount: number, currency: string): string {

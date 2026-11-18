@@ -71,7 +71,19 @@ export default function AppHomePage() {
 
   const mySpaces = spaces.filter((s) => s.type !== "campaign");
   const campaigns = spaces.filter((s) => s.type === "campaign");
-  const totalSaved = mySpaces.reduce((sum, s) => sum + s.savedAmount, 0);
+
+  const totalsByCurrency = mySpaces.reduce<Record<string, number>>((acc, s) => {
+    acc[s.currency] = (acc[s.currency] ?? 0) + s.savedAmount;
+    return acc;
+  }, {});
+
+  const currencyList = Object.entries(totalsByCurrency);
+  const totalSummaryString =
+    currencyList.length > 0
+      ? currencyList
+          .map(([curr, amt]) => formatCurrency(amt, curr))
+          .join(" · ")
+      : "£0";
 
   return (
     <AppShell>
@@ -83,7 +95,7 @@ export default function AppHomePage() {
               Your savings spaces
             </h1>
             <p className="text-sm text-[#4A5568] mt-1.5">
-              {formatCurrency(totalSaved, "GBP")} total saved across {mySpaces.length}{" "}
+              {totalSummaryString} total saved across {mySpaces.length}{" "}
               {mySpaces.length === 1 ? "space" : "spaces"}
             </p>
           </div>

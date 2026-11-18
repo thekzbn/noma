@@ -1,147 +1,174 @@
-'use client'
+"use client";
 
-import { use, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useSpaces, useApp } from '@/lib/store'
-import { formatCurrency, type Transaction } from '@/lib/demo-data'
-import { AppShell } from '@/components/layout/AppShell'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { use, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSpaces, useApp } from "@/lib/store";
+import { formatCurrency, type Transaction } from "@/lib/demo-data";
+import { AppShell } from "@/components/layout/AppShell";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
-type Step = 'amount' | 'review' | 'processing' | 'confirmed' | 'failed'
+type Step = "amount" | "review" | "processing" | "confirmed" | "failed";
 
-export default function ContributePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const router = useRouter()
-  const { spaces, updateSpace } = useSpaces()
-  const { showToast } = useApp()
+export default function ContributePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const router = useRouter();
+  const { spaces, updateSpace } = useSpaces();
+  const { showToast } = useApp();
 
-  const space = spaces.find(s => s.id === id)
+  const space = spaces.find((s) => s.id === id);
 
-  const [step, setStep] = useState<Step>('amount')
-  const [amount, setAmount] = useState('')
-  const [amountError, setAmountError] = useState('')
-  const [method, setMethod] = useState<'bank' | 'card'>('bank')
-  const [reference, setReference] = useState('')
+  const [step, setStep] = useState<Step>("amount");
+  const [amount, setAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
+  const [method, setMethod] = useState<"bank" | "card">("bank");
+  const [reference, setReference] = useState("");
 
   if (!space) {
     return (
       <AppShell>
-        <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '4rem 1rem' }}>
-          <p style={{ color: '#061E47', marginBottom: '1rem' }}>Space not found.</p>
-          <Link href="/app" style={{ color: '#2B6AD0' }}>Back to spaces</Link>
+        <div className="max-w-md mx-auto py-16 text-center">
+          <p className="text-[#061E47] mb-4">Space not found.</p>
+          <Link
+            href="/app"
+            className="text-[#2B6AD0] hover:underline text-sm font-medium"
+          >
+            Back to spaces
+          </Link>
         </div>
       </AppShell>
-    )
+    );
   }
 
-  const currentSpace = space
-  const remaining = currentSpace.targetAmount - currentSpace.savedAmount
-  const parsedAmount = parseFloat(amount)
+  const currentSpace = space;
+  const remaining = currentSpace.targetAmount - currentSpace.savedAmount;
+  const parsedAmount = parseFloat(amount);
 
   function validateAmount(): boolean {
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      setAmountError('Enter an amount greater than £0.')
-      return false
+      setAmountError(`Enter an amount greater than ${formatCurrency(0, currentSpace.currency)}.`);
+      return false;
     }
     if (parsedAmount > remaining + 0.001) {
-      setAmountError(`The most you can contribute right now is ${formatCurrency(remaining, currentSpace.currency)}.`)
-      return false
+      setAmountError(
+        `The most you can contribute right now is ${formatCurrency(
+          remaining,
+          currentSpace.currency
+        )}.`
+      );
+      return false;
     }
-    setAmountError('')
-    return true
+    setAmountError("");
+    return true;
   }
 
   function handleAmountSubmit() {
-    if (!validateAmount()) return
-    setStep('review')
+    if (!validateAmount()) return;
+    setStep("review");
   }
 
   function handleConfirm() {
-    setStep('processing')
+    setStep("processing");
     setTimeout(() => {
-      const ref = 'NMA-' + Math.random().toString(36).slice(2, 9).toUpperCase()
-      setReference(ref)
+      const ref =
+        "NMA-" + Math.random().toString(36).slice(2, 9).toUpperCase();
+      setReference(ref);
 
       const newTransaction: Transaction = {
-        id: 'txn-' + Date.now(),
-        type: 'contribution',
+        id: "txn-" + Date.now(),
+        type: "contribution",
         amount: parsedAmount,
         currency: currentSpace.currency,
-        date: new Date().toISOString(),
-        note: 'Manual contribution',
-        status: 'completed',
-        memberName: 'You',
+        date: new Date().toISOString().slice(0, 10),
+        note: "Direct contribution",
+        status: "completed",
+        memberName: "You",
         reference: ref,
-      }
+      };
 
       updateSpace({
         ...currentSpace,
         savedAmount: currentSpace.savedAmount + parsedAmount,
         transactions: [...currentSpace.transactions, newTransaction],
-      })
+      });
 
-      showToast(`${formatCurrency(parsedAmount, currentSpace.currency)} added to ${currentSpace.name}.`, 'success')
-      setStep('confirmed')
-    }, 1800)
+      showToast(
+        `${formatCurrency(parsedAmount, currentSpace.currency)} added to ${
+          currentSpace.name
+        }.`,
+        "success"
+      );
+      setStep("confirmed");
+    }, 1200);
   }
 
   return (
     <AppShell>
-      <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '2.5rem 1rem' }}>
+      <div className="max-w-lg mx-auto py-6">
         {/* Back link */}
-        {(step === 'amount' || step === 'review') && (
+        {(step === "amount" || step === "review") && (
           <Link
             href={`/app/spaces/${id}`}
-            style={{ color: '#2B6AD0', fontSize: '0.875rem', display: 'inline-block', marginBottom: '1.5rem' }}
+            className="text-sm font-medium text-[#2B6AD0] hover:text-[#1F4591] mb-6 inline-flex items-center gap-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
           >
             ← {space.name}
           </Link>
         )}
 
         {/* STEP: Amount */}
-        {step === 'amount' && (
-          <>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.25rem' }}>
+        {step === "amount" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-1.5">
               Add to {space.name}
             </h1>
-            <p style={{ color: '#1F4591', marginBottom: '2rem', fontSize: '0.9375rem' }}>
-              {formatCurrency(space.savedAmount, space.currency)} saved of {formatCurrency(space.targetAmount, space.currency)}
+            <p className="text-sm text-[#4A5568] mb-8">
+              {formatCurrency(space.savedAmount, space.currency)} saved of{" "}
+              {formatCurrency(space.targetAmount, space.currency)}
             </p>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div className="mb-6">
               <Input
-                label="Amount (£)"
+                label={`Amount (${space.currency})`}
                 type="number"
                 min="0.01"
                 step="0.01"
                 placeholder="0.00"
                 value={amount}
-                onChange={e => { setAmount(e.target.value); setAmountError('') }}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setAmountError("");
+                }}
                 error={amountError}
-                hint={remaining > 0 ? `Up to ${formatCurrency(remaining, space.currency)} remaining to goal` : 'Goal already reached.'}
+                hint={
+                  remaining > 0
+                    ? `Up to ${formatCurrency(
+                        remaining,
+                        space.currency
+                      )} remaining to goal`
+                    : "Goal already reached."
+                }
               />
             </div>
 
-            <fieldset style={{ marginBottom: '2rem', border: 'none', padding: 0 }}>
-              <legend style={{ fontSize: '0.875rem', fontWeight: 500, color: '#061E47', marginBottom: '0.75rem' }}>
+            <fieldset className="mb-8 border-none p-0">
+              <legend className="text-sm font-medium text-[#061E47] mb-3">
                 Payment method
               </legend>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {(['bank', 'card'] as const).map(m => (
+              <div className="flex flex-col gap-3">
+                {(["bank", "card"] as const).map((m) => (
                   <label
                     key={m}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      cursor: 'pointer',
-                      padding: '0.875rem 1rem',
-                      border: `1.5px solid ${method === m ? '#2B6AD0' : '#D1D9E6'}`,
-                      borderRadius: '8px',
-                      background: method === m ? '#EEF4FF' : '#FEFEFE',
-                    }}
+                    className={[
+                      "flex items-center gap-3.5 p-3.5 rounded-lg border cursor-pointer select-none transition-colors",
+                      method === m
+                        ? "border-[#2B6AD0] bg-[#EBF2FC]"
+                        : "border-[#CBD5E0] hover:border-[#68A4F1] bg-white",
+                    ].join(" ")}
                   >
                     <input
                       type="radio"
@@ -149,139 +176,146 @@ export default function ContributePage({ params }: { params: Promise<{ id: strin
                       value={m}
                       checked={method === m}
                       onChange={() => setMethod(m)}
-                      style={{ accentColor: '#2B6AD0' }}
+                      className="accent-[#2B6AD0] h-4 w-4"
                     />
-                    <span style={{ color: '#061E47', fontWeight: 500 }}>
-                      {m === 'bank' ? 'Bank transfer' : 'Debit / credit card'}
+                    <span className="text-sm font-medium text-[#061E47]">
+                      {m === "bank" ? "Bank transfer" : "Debit or credit card"}
                     </span>
                   </label>
                 ))}
               </div>
             </fieldset>
 
-            <Button variant="primary" size="lg" fullWidth onClick={handleAmountSubmit}>
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={handleAmountSubmit}
+            >
               Review contribution
             </Button>
-          </>
+          </div>
         )}
 
         {/* STEP: Review */}
-        {step === 'review' && (
-          <>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '1.75rem' }}>
-              Review
+        {step === "review" && (
+          <div>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-6">
+              Review contribution
             </h1>
 
-            <dl style={{ marginBottom: '2rem' }}>
+            <dl className="divide-y divide-[#E2E8F0] mb-8">
               {[
-                ['Space', space.name],
-                ['Amount', formatCurrency(parsedAmount, space.currency)],
-                ['Method', method === 'bank' ? 'Bank transfer' : 'Debit / credit card'],
-                ['Transaction fee', '£0.00'],
-              ].map(([label, value]) => (
+                ["Space", space.name],
+                ["Amount", formatCurrency(parsedAmount, space.currency)],
+                [
+                  "Method",
+                  method === "bank" ? "Bank transfer" : "Debit or credit card",
+                ],
+                ["Transaction fee", formatCurrency(0, space.currency)],
+              ].map(([lbl, val]) => (
                 <div
-                  key={label}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '0.75rem 0',
-                    borderBottom: '1px solid #E8EEF7',
-                  }}
+                  key={lbl}
+                  className="flex items-center justify-between py-3 text-sm"
                 >
-                  <dt style={{ color: '#1F4591', fontSize: '0.875rem' }}>{label}</dt>
-                  <dd style={{ color: '#061E47', fontWeight: 500 }}>{value}</dd>
+                  <dt className="text-[#4A5568]">{lbl}</dt>
+                  <dd className="font-semibold text-[#061E47]">{val}</dd>
                 </div>
               ))}
             </dl>
 
-            <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '2rem' }}>
-              Your contribution will be credited to this space immediately upon confirmation.
+            <p className="text-xs text-[#718096] mb-8 leading-relaxed">
+              Your contribution will be credited to this space immediately upon
+              confirmation.
             </p>
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('amount')}>Back</Button>
-              <Button variant="primary" fullWidth onClick={handleConfirm}>Confirm</Button>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("amount")}>
+                Back
+              </Button>
+              <Button variant="primary" fullWidth onClick={handleConfirm}>
+                Confirm contribution
+              </Button>
             </div>
-          </>
+          </div>
         )}
 
         {/* STEP: Processing */}
-        {step === 'processing' && (
-          <div style={{ textAlign: 'center', paddingTop: '4rem' }}>
-            <div
-              style={{
-                width: '2.5rem',
-                height: '2.5rem',
-                border: '3px solid #E8EEF7',
-                borderTopColor: '#2B6AD0',
-                borderRadius: '50%',
-                animation: 'spin 0.8s linear infinite',
-                margin: '0 auto 1.5rem',
-              }}
-            />
-            <p style={{ color: '#061E47', fontWeight: 500 }}>Processing…</p>
+        {step === "processing" && (
+          <div className="text-center py-16">
+            <div className="w-10 h-10 border-4 border-[#E2E8F0] border-t-[#2B6AD0] rounded-full animate-spin mx-auto mb-6" />
+            <p className="text-base font-semibold text-[#061E47]">
+              Processing contribution
+            </p>
           </div>
         )}
 
         {/* STEP: Confirmed */}
-        {step === 'confirmed' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#EDFAF3', color: '#3CB371', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.25rem', fontWeight: 700 }}>✓</span>
+        {step === "confirmed" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#2D7D4E] flex items-center justify-center font-bold text-xl mb-6">
+              ✓
             </div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
               Contribution confirmed
             </h1>
-            <p style={{ color: '#1F4591', marginBottom: '1.75rem' }}>
-              {formatCurrency(parsedAmount, space.currency)} has been added to {space.name}.
+            <p className="text-sm text-[#4A5568] mb-8">
+              {formatCurrency(parsedAmount, space.currency)} has been credited to{" "}
+              {space.name}.
             </p>
 
-            <dl style={{ marginBottom: '2rem' }}>
+            <dl className="divide-y divide-[#E2E8F0] mb-8">
               {[
-                ['Reference', reference],
-                ['Amount', formatCurrency(parsedAmount, space.currency)],
-                ['Space', space.name],
-              ].map(([label, value]) => (
+                ["Reference", reference],
+                ["Amount", formatCurrency(parsedAmount, space.currency)],
+                ["Space", space.name],
+              ].map(([lbl, val]) => (
                 <div
-                  key={label}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '0.75rem 0',
-                    borderBottom: '1px solid #E8EEF7',
-                  }}
+                  key={lbl}
+                  className="flex items-center justify-between py-3 text-sm"
                 >
-                  <dt style={{ color: '#1F4591', fontSize: '0.875rem' }}>{label}</dt>
-                  <dd style={{ color: '#061E47', fontWeight: 500 }}>{value}</dd>
+                  <dt className="text-[#4A5568]">{lbl}</dt>
+                  <dd className="font-mono text-xs text-[#061E47]">{val}</dd>
                 </div>
               ))}
             </dl>
 
-            <Button variant="primary" onClick={() => router.push(`/app/spaces/${id}`)}>
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/app/spaces/${id}`)}
+            >
               Back to space
             </Button>
           </div>
         )}
 
         {/* STEP: Failed */}
-        {step === 'failed' && (
-          <div style={{ paddingTop: '2rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FFF1EE', color: '#FF6347', borderRadius: '50%', width: '3rem', height: '3rem', fontSize: '1.1rem', fontWeight: 700 }}>✕</span>
+        {step === "failed" && (
+          <div className="py-8">
+            <div className="w-12 h-12 rounded-full bg-[#FFECE8] text-[#FF6347] flex items-center justify-center font-bold text-xl mb-6">
+              ✕
             </div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
-              Payment failed
+            <h1 className="text-2xl font-bold text-[#061E47] tracking-tight mb-2">
+              Payment unsuccessful
             </h1>
-            <p style={{ color: '#1F4591', marginBottom: '2rem' }}>
-              Your payment couldn&apos;t be processed. No money has been taken. Try again or use a different payment method.
+            <p className="text-sm text-[#4A5568] mb-8 leading-relaxed">
+              Your payment could not be processed. No money has been deducted.
+              Please try again or use a different payment method.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Button variant="secondary" onClick={() => setStep('review')}>Try again</Button>
-              <Button variant="ghost" onClick={() => router.push(`/app/spaces/${id}`)}>Cancel</Button>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setStep("review")}>
+                Try again
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => router.push(`/app/spaces/${id}`)}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         )}
       </div>
     </AppShell>
-  )
+  );
 }
