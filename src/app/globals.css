@@ -1,0 +1,111 @@
+/* Inter 4.1 from Rasmus' official CDN */
+@import url("https://rsms.me/inter/inter.css");
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+
+  /* Noma design tokens */
+  --color-primary: #1F4591;
+  --color-action: #2B6AD0;
+  --color-soft: #68A4F1;
+  --color-ink: #061E47;
+  --color-page: #FEFEFE;
+  --color-alert: #FF6347;
+  --color-success: #3CB371;
+
+  /* Neutrals */
+  --color-ink-muted: #4A5568;
+  --color-ink-faint: #718096;
+  --color-line: #E2E8F0;
+  --color-line-strong: #CBD5E0;
+  --color-surface: #F7F9FC;
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+@theme inline {
+  --color-background: var(--color-page);
+  --color-foreground: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--color-page);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+
+p {
+  margin: 0;
+}
+
+/* Only apply link colour to prose anchors, not to component anchors that
+   set their own colour via Tailwind utility classes. Using :not to exclude
+   any anchor that already carries an explicit Tailwind text-* class would
+   not work reliably, so we scope to only unclassed anchors inside block
+   content areas. Component-level links set their own colour explicitly. */
+a:not([class]) {
+  color: var(--color-action);
+  text-decoration: none;
+}
+
+a:not([class]):hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
