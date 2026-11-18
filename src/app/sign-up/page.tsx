@@ -63,7 +63,6 @@ export default function SignUpPage() {
       <PublicNav />
       <main className="flex-1 flex items-start justify-center px-5 py-16">
         <div className="w-full max-w-sm">
-          <span className="demo-badge mb-4 inline-block">Demo — data not saved</span>
           <h1 className="text-2xl font-semibold text-[#061E47] mb-2 tracking-tight">
             Create your account
           </h1>
@@ -117,8 +116,8 @@ export default function SignUpPage() {
           </form>
 
           <p className="text-xs text-[#718096] mt-6 leading-relaxed">
-            By creating an account you agree to Noma&apos;s terms of service and
-            privacy policy (this is a demo — no real data is processed).
+            By creating an account you agree to noma.&apos;s terms of service and
+            privacy policy.
           </p>
         </div>
       </main>

@@ -75,10 +75,10 @@ export default function InvitePage({ params }: { params: Promise<{ id: string }>
 
         {/* Permissions */}
         <section style={{ marginBottom: '2.5rem' }}>
-          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#061E47', marginBottom: '0.25rem' }}>
             Permissions for invitees
           </h2>
-          <p style={{ fontSize: '0.8125rem', color: '#68A4F1', marginBottom: '1.25rem' }}>
+          <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '1.25rem' }}>
             Invitees will see these permissions before accepting.
           </p>
           <div>

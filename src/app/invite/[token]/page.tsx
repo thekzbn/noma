@@ -69,36 +69,38 @@ export default function InviteTokenPage({ params }: { params: Promise<{ token: s
       <main style={{ maxWidth: '36rem', margin: '0 auto', padding: '3rem 1.5rem' }}>
         {/* Header */}
         <div style={{ marginBottom: '2.5rem' }}>
-          <p style={{ fontSize: '0.875rem', color: '#68A4F1', marginBottom: '0.5rem' }}>
-            {invitation.invitedBy} has invited you to join
+          <div className="flex items-center gap-2.5 flex-wrap mb-2">
+            <h1 style={{ fontSize: '2.25rem', fontWeight: 700, color: '#061E47', letterSpacing: '-0.02em' }}>
+              {invitation.spaceName}
+            </h1>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#1F4591', textTransform: 'capitalize', background: '#EEF4FF', padding: '0.25rem 0.625rem', borderRadius: '99px' }}>
+              {invitation.spaceType} space
+            </span>
+          </div>
+          <p style={{ fontSize: '1rem', color: '#4A5568', lineHeight: 1.5 }}>
+            {invitation.invitedBy} has invited you to join this savings space.
           </p>
-          <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#061E47', marginBottom: '0.5rem' }}>
-            {invitation.spaceName}
-          </h1>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#1F4591', textTransform: 'capitalize', background: '#EEF4FF', padding: '0.25rem 0.625rem', borderRadius: '99px' }}>
-            {invitation.spaceType} space
-          </span>
         </div>
 
         {/* Purpose */}
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#061E47', marginBottom: '0.625rem' }}>
             Purpose
           </h2>
-          <p style={{ color: '#061E47', lineHeight: 1.65 }}>{invitation.purpose}</p>
+          <p style={{ color: '#4A5568', lineHeight: 1.65 }}>{invitation.purpose}</p>
         </section>
 
         {/* Rules */}
         {invitation.rules.length > 0 && (
           <section style={{ marginBottom: '2rem', borderTop: '1px solid #E8EEF7', paddingTop: '2rem' }}>
-            <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#061E47', marginBottom: '0.75rem' }}>
               Rules
             </h2>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
               {invitation.rules.map((rule, i) => (
-                <li key={i} style={{ color: '#061E47', paddingLeft: '1rem', position: 'relative', lineHeight: 1.5 }}>
-                  <span style={{ position: 'absolute', left: 0, color: '#68A4F1' }}>–</span>
-                  {rule}
+                <li key={i} style={{ color: '#061E47', display: 'flex', alignItems: 'center', gap: '0.5rem', lineHeight: 1.5 }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2B6AD0', flexShrink: 0 }} />
+                  <span>{rule}</span>
                 </li>
               ))}
             </ul>
@@ -107,8 +109,8 @@ export default function InviteTokenPage({ params }: { params: Promise<{ token: s
 
         {/* Permissions */}
         <section style={{ marginBottom: '2.5rem', borderTop: '1px solid #E8EEF7', paddingTop: '2rem' }}>
-          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
-            Your permissions if you accept
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#061E47', marginBottom: '0.75rem' }}>
+            Permissions granted to you
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {invitation.permissionsRequested.canView && (

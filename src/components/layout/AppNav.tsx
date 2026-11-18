@@ -30,12 +30,12 @@ export function AppNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-[#FEFEFE]/95" style={{ backdropFilter: "blur(8px)" }}>
       <div className="max-w-4xl mx-auto px-5 h-14 flex items-center justify-between gap-6">
-        {/* Brand */}
+        {/* Brand logomark */}
         <Link
           href="/app"
-          className="text-[#1F4591] font-semibold text-base tracking-tight hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+          className="text-[#1F4591] font-semibold text-lg tracking-tight hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
         >
-          Noma
+          noma.
         </Link>
 
         {/* Desktop nav */}

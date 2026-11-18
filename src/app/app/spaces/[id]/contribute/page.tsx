@@ -177,7 +177,7 @@ export default function ContributePage({ params }: { params: Promise<{ id: strin
                 ['Space', space.name],
                 ['Amount', formatCurrency(parsedAmount, space.currency)],
                 ['Method', method === 'bank' ? 'Bank transfer' : 'Debit / credit card'],
-                ['Fee', '£0.00 (demo)'],
+                ['Transaction fee', '£0.00'],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -194,8 +194,8 @@ export default function ContributePage({ params }: { params: Promise<{ id: strin
               ))}
             </dl>
 
-            <p style={{ fontSize: '0.8125rem', color: '#68A4F1', marginBottom: '2rem' }}>
-              Demo — no payment is processed. This contribution will be reflected in your space immediately.
+            <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '2rem' }}>
+              Your contribution will be credited to this space immediately upon confirmation.
             </p>
 
             <div style={{ display: 'flex', gap: '0.75rem' }}>

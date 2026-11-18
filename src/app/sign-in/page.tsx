@@ -45,9 +45,8 @@ function SignInForm() {
       <PublicNav />
       <main className="flex-1 flex items-start justify-center px-5 py-16">
         <div className="w-full max-w-sm">
-          <span className="demo-badge mb-4 inline-block">Demo — any email and password works</span>
           <h1 className="text-2xl font-semibold text-[#061E47] mb-2 tracking-tight">
-            Sign in to Noma
+            Sign in to noma.
           </h1>
           <p className="text-sm text-[#4A5568] mb-8">
             No account?{" "}

@@ -12,22 +12,19 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero */}
         <section className="max-w-3xl mx-auto px-5 pt-20 pb-16">
-          <p className="text-sm font-medium text-[#2B6AD0] mb-5">
-            A savings space is for a goal, not just a number.
-          </p>
           <h1
-            className="text-[2.75rem] leading-[1.1] font-semibold tracking-tight text-[#061E47] mb-6"
+            className="text-[2.75rem] leading-[1.12] font-semibold tracking-tight text-[#061E47] mb-6"
             style={{ maxWidth: "28ch" }}
           >
-            Save for what actually matters — alone or together.
+            Save for what actually matters: alone or together.
           </h1>
           <p
             className="text-[1.125rem] text-[#4A5568] leading-relaxed mb-10"
             style={{ maxWidth: "54ch" }}
           >
-            Noma gives every goal its own space: its purpose, its people, its
-            rules, and its records. Whether you&apos;re saving by yourself, with
-            family, or running a community fund, everything stays together.
+            Noma gives every goal its own home: its purpose, its people, its
+            rules, and its records. Whether you are saving on your own, with
+            family, or running a rotating community fund, everything stays together in one space.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -64,10 +61,9 @@ export default function Home() {
                 className="text-[#4A5568] leading-relaxed"
                 style={{ maxWidth: "60ch" }}
               >
-                Set a goal — a laptop, a deposit, a holiday fund — with a
-                target, a date, and a plan. Optionally invite someone you trust
-                to see your progress. They see what you show them; they don&apos;t
-                control your money.
+                Set a goal (such as a laptop, house deposit, or emergency buffer) with a
+                target amount and target date. If you wish, invite an accountability partner
+                to view your progress. They see what you share; they cannot touch your money.
               </p>
               <Link
                 href="/sign-up"
@@ -88,10 +84,9 @@ export default function Home() {
                 className="text-[#4A5568] leading-relaxed"
                 style={{ maxWidth: "60ch" }}
               >
-                Create a shared space with a common goal. Each person
-                contributes on their schedule, tracks their own record, and
-                understands the agreed rules. Withdrawals follow the rules you
-                set together.
+                Create a shared space with a common goal. Each member contributes
+                on their schedule, tracks their individual balance, and understands the agreed rules.
+                Withdrawals follow the explicit conditions you agree upon as a group.
               </p>
               <Link
                 href="/sign-up"
@@ -112,10 +107,10 @@ export default function Home() {
                 className="text-[#4A5568] leading-relaxed"
                 style={{ maxWidth: "60ch" }}
               >
-                Run an Ajo, Esusu, susu, or any rotating or pooled fund. Set
-                contribution cycles, payout rotations, and governance rules.
-                Every transaction is recorded. Payouts require the approvals
-                your group sets.
+                Organise an Ajo, Esusu, or rotating group with clear cycles.
+                Establish cycle amounts, rotation schedules, and quorum requirements.
+                Every contribution is audited in real time, and payouts release only when
+                the required approvals are recorded.
               </p>
               <Link
                 href="/sign-up"
@@ -133,16 +128,15 @@ export default function Home() {
         {/* Campaign callout */}
         <section className="max-w-3xl mx-auto px-5 py-16">
           <h2 className="text-xl font-semibold text-[#061E47] mb-4">
-            Raising money from the public?
+            Raising contributions from the public
           </h2>
           <p
             className="text-[#4A5568] leading-relaxed mb-6"
             style={{ maxWidth: "58ch" }}
           >
-            Create a fundraising campaign with a public page. Donors can
-            contribute without joining Noma. Contributions are anonymous by
-            default — donors choose whether to show their name. Every donation
-            is recorded and receipted.
+            Create a fundraising campaign with a public page. Donors can contribute
+            directly without registering first. Contributions display as anonymous by default,
+            or donors can choose to show their name. Every contribution receives an immediate digital receipt.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -172,10 +166,9 @@ export default function Home() {
             className="text-[#4A5568] leading-relaxed"
             style={{ maxWidth: "58ch" }}
           >
-            Being someone&apos;s partner, parent, or friend does not automatically
-            grant access to their savings. Every permission is explicit and
-            revocable. What someone can see, contribute, or approve is set by
-            the person who owns the space.
+            Being someone&apos;s partner, parent, or colleague never grants automatic access
+            to their savings. Every permission is explicit and revocable. What someone can see,
+            contribute, or approve is set directly by the space owner.
           </p>
         </section>
       </main>
@@ -183,9 +176,14 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-[#E2E8F0]">
         <div className="max-w-3xl mx-auto px-5 py-8 flex flex-wrap items-center justify-between gap-4">
-          <span className="text-sm text-[#061E47] font-semibold">Noma</span>
+          <span className="text-base font-bold text-[#1F4591]">noma.</span>
           <div className="flex items-center gap-6 text-sm text-[#718096]">
-            <span className="demo-badge">Demo — no data is saved</span>
+            <Link href="/how-it-works" className="hover:text-[#1F4591] transition-colors">
+              How it works
+            </Link>
+            <Link href="/sign-in" className="hover:text-[#1F4591] transition-colors">
+              Sign in
+            </Link>
           </div>
         </div>
       </footer>

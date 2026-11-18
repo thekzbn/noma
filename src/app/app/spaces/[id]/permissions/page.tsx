@@ -84,15 +84,15 @@ export default function PermissionsPage({ params }: { params: Promise<{ id: stri
         {/* Owner */}
         {ownerMember && (
           <section style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#061E47', marginBottom: '0.75rem' }}>
               Owner
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 0', borderBottom: '1px solid #E8EEF7' }}>
               <div>
                 <div style={{ fontWeight: 500, color: '#061E47' }}>{ownerMember.name}</div>
-                <div style={{ fontSize: '0.8125rem', color: '#68A4F1', marginTop: '0.125rem' }}>Full access — cannot be edited</div>
+                <div style={{ fontSize: '0.8125rem', color: '#718096', marginTop: '0.125rem' }}>Full administrative access (cannot be modified)</div>
               </div>
-              <span style={{ fontSize: '0.75rem', background: '#EEF4FF', color: '#1F4591', padding: '0.25rem 0.625rem', borderRadius: '99px', fontWeight: 500 }}>
+              <span style={{ fontSize: '0.75rem', background: '#EEF4FF', color: '#1F4591', padding: '0.25rem 0.625rem', borderRadius: '99px', fontWeight: 600 }}>
                 Owner
               </span>
             </div>
@@ -101,7 +101,7 @@ export default function PermissionsPage({ params }: { params: Promise<{ id: stri
 
         {/* Editable members */}
         <section style={{ marginBottom: '2.5rem' }}>
-          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#061E47', marginBottom: '0.75rem' }}>
             Members ({editableMembers.length})
           </h2>
 

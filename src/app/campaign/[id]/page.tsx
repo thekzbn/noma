@@ -12,7 +12,6 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params)
   const { state } = useApp()
 
-  // Look in state.spaces first (for user-created campaigns), fallback to DEMO_CAMPAIGN
   const space = state.spaces.find(s => s.id === id) ?? (id === DEMO_CAMPAIGN.id ? DEMO_CAMPAIGN : null)
 
   if (!space || space.type !== 'campaign') {
@@ -20,13 +19,13 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
       <>
         <PublicNav />
         <main style={{ maxWidth: '40rem', margin: '0 auto', padding: '5rem 1rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#061E47', marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#061E47', marginBottom: '1rem' }}>
             Campaign not found
           </h1>
           <p style={{ color: '#1F4591', marginBottom: '2rem' }}>
-            This campaign link may have expired or the campaign may have ended.
+            This campaign link may have expired or the campaign has concluded.
           </p>
-          <Link href="/" style={{ color: '#2B6AD0' }}>Back to Noma</Link>
+          <Link href="/" style={{ color: '#2B6AD0' }}>Back to home</Link>
         </main>
       </>
     )
@@ -39,35 +38,30 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
       <PublicNav />
       <main>
         {/* Hero */}
-        <section style={{ background: '#F3F7FF', borderBottom: '1px solid #E8EEF7', padding: '3.5rem 1.5rem 2.5rem' }}>
-          <div style={{ maxWidth: '40rem', margin: '0 auto' }}>
-            <div style={{ marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Community campaign
-              </span>
-            </div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#061E47', lineHeight: 1.25, marginBottom: '1rem' }}>
+        <section style={{ background: '#F3F7FF', borderBottom: '1px solid #E8EEF7', padding: '4rem 1.5rem 3rem' }}>
+          <div style={{ maxWidth: '42rem', margin: '0 auto' }}>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#061E47', lineHeight: 1.2, marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
               {space.name}
             </h1>
-            <p style={{ color: '#1F4591', fontSize: '1rem', marginBottom: '2rem', lineHeight: 1.65 }}>
+            <p style={{ color: '#1F4591', fontSize: '1.125rem', marginBottom: '2.5rem', lineHeight: 1.65 }}>
               {space.purpose}
             </p>
 
-            {/* Progress */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <ProgressBar value={pct} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.75rem', fontSize: '0.9375rem' }}>
-                <span style={{ color: '#061E47', fontWeight: 600 }}>
-                  {formatCurrency(space.savedAmount, space.currency)} raised
+            {/* Financial Progress Hub */}
+            <div style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '2rem', fontWeight: 700, color: '#061E47', letterSpacing: '-0.02em' }}>
+                  {formatCurrency(space.savedAmount, space.currency)}
                 </span>
-                <span style={{ color: '#1F4591' }}>
-                  of {formatCurrency(space.targetAmount, space.currency)}
+                <span style={{ fontSize: '1rem', color: '#1F4591', fontWeight: 500 }}>
+                  target of {formatCurrency(space.targetAmount, space.currency)} ({pct}%)
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem', fontSize: '0.875rem', color: '#68A4F1' }}>
-                <span>{space.donors?.length ?? 0} contributions</span>
+              <ProgressBar value={pct} size="md" />
+              <div style={{ display: 'flex', gap: '2rem', marginTop: '0.75rem', fontSize: '0.875rem', color: '#68A4F1' }}>
+                <span>{space.donors?.length ?? 0} total contributions</span>
                 {space.endDate && (
-                  <span>Ends {space.endDate}</span>
+                  <span>Campaign ends: {space.endDate}</span>
                 )}
               </div>
             </div>
@@ -80,48 +74,50 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
           </div>
         </section>
 
-        {/* Details */}
-        <section style={{ maxWidth: '40rem', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
+        {/* Details & Ledger */}
+        <section style={{ maxWidth: '42rem', margin: '0 auto', padding: '3rem 1.5rem' }}>
           {space.beneficiary && (
-            <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: '2.5rem' }}>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
                 Beneficiary
               </h2>
-              <p style={{ color: '#061E47' }}>{space.beneficiary}</p>
+              <p style={{ color: '#4A5568', lineHeight: 1.6 }}>{space.beneficiary}</p>
             </div>
           )}
 
-          <div style={{ marginBottom: '2rem', borderTop: '1px solid #E8EEF7', paddingTop: '2rem' }}>
-            <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
-              Organiser
+          <div style={{ marginBottom: '2.5rem', borderTop: '1px solid #E8EEF7', paddingTop: '2.5rem' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#061E47', marginBottom: '0.5rem' }}>
+              Organised by
             </h2>
-            <p style={{ color: '#061E47' }}>{space.members[0]?.name}</p>
+            <p style={{ color: '#4A5568' }}>{space.members[0]?.name}</p>
           </div>
 
           {/* Donors */}
           {space.donors && space.donors.length > 0 && (
-            <div style={{ borderTop: '1px solid #E8EEF7', paddingTop: '2rem' }}>
-              <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1F4591', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
-                Recent contributions
+            <div style={{ borderTop: '1px solid #E8EEF7', paddingTop: '2.5rem' }}>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#061E47', marginBottom: '0.25rem' }}>
+                Contributions
               </h2>
-              <p style={{ fontSize: '0.8125rem', color: '#68A4F1', marginBottom: '1rem' }}>
-                Contributions are anonymous by default. Names appear only if the donor chose to share them.
+              <p style={{ fontSize: '0.875rem', color: '#718096', marginBottom: '1.25rem' }}>
+                Contributions are anonymous by default unless the contributor opted to display their name.
               </p>
-              <div>
-                {space.donors.map((donor, i) => (
+              <div className="divide-y divide-[#E8EEF7]">
+                {space.donors.map((donor) => (
                   <div
                     key={donor.id}
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      padding: '0.75rem 0',
-                      borderBottom: i < space.donors!.length - 1 ? '1px solid #E8EEF7' : 'none',
+                      padding: '0.875rem 0',
                     }}
                   >
-                    <span style={{ color: '#061E47' }}>{donor.displayName}</span>
-                    <span style={{ color: '#1F4591', fontWeight: 500 }}>
-                      {formatCurrency(donor.amount, donor.currency)}
+                    <div>
+                      <span style={{ color: '#061E47', fontWeight: 500 }}>{donor.displayName}</span>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#718096' }}>{donor.date}</span>
+                    </div>
+                    <span style={{ color: '#3CB371', fontWeight: 600 }}>
+                      +{formatCurrency(donor.amount, donor.currency)}
                     </span>
                   </div>
                 ))}
@@ -129,7 +125,7 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
             </div>
           )}
 
-          <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid #E8EEF7', textAlign: 'center' }}>
+          <div style={{ marginTop: '3.5rem', paddingTop: '2.5rem', borderTop: '1px solid #E8EEF7', textAlign: 'center' }}>
             <Link href={`/campaign/${id}/contribute`}>
               <Button variant="primary" size="lg">
                 Contribute to this campaign
@@ -138,6 +134,20 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-[#E2E8F0]">
+        <div className="max-w-3xl mx-auto px-5 py-8 flex flex-wrap items-center justify-between gap-4">
+          <span className="text-base font-bold text-[#1F4591]">noma.</span>
+          <div className="flex items-center gap-6 text-sm text-[#718096]">
+            <Link href="/" className="hover:text-[#1F4591] transition-colors">
+              Home
+            </Link>
+            <Link href="/sign-up" className="hover:text-[#1F4591] transition-colors">
+              Create an account
+            </Link>
+          </div>
+        </div>
+      </footer>
     </>
   )
 }

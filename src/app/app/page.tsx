@@ -18,25 +18,33 @@ function SpaceRow({ space }: { space: Space }) {
   return (
     <Link
       href={`/app/spaces/${space.id}`}
-      className="block py-5 hover:bg-[#F7F9FC] -mx-5 px-5 transition-colors rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
+      className="group block py-6 px-4 -mx-4 rounded-xl hover:bg-[#F7F9FC] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0]"
     >
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <div>
-          <span className="text-xs font-medium text-[#718096] block mb-0.5">
-            {spaceTypeLabel(space.type)}
-          </span>
-          <h3 className="font-semibold text-[#061E47] text-base">{space.name}</h3>
-          <p className="text-sm text-[#4A5568] mt-0.5 line-clamp-1">{space.purpose}</p>
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 sm:gap-6 mb-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h3 className="font-semibold text-[#061E47] text-lg group-hover:text-[#2B6AD0] transition-colors">
+              {space.name}
+            </h3>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#EBF2FC] text-[#1F4591]">
+              {spaceTypeLabel(space.type)}
+            </span>
+          </div>
+          <p className="text-sm text-[#4A5568] mt-1 line-clamp-1">
+            {space.purpose}
+          </p>
         </div>
-        <div className="text-right shrink-0">
-          <div className="font-semibold text-[#061E47] text-base">
+
+        <div className="sm:text-right shrink-0">
+          <div className="text-xl font-bold text-[#061E47] tracking-tight">
             {formatCurrency(space.savedAmount, space.currency)}
           </div>
-          <div className="text-xs text-[#718096]">
-            of {formatCurrency(space.targetAmount, space.currency)}
+          <div className="text-xs text-[#718096] font-medium">
+            of {formatCurrency(space.targetAmount, space.currency)} ({pct}%)
           </div>
         </div>
       </div>
+
       <ProgressBar value={pct} showLabel={false} size="sm" />
     </Link>
   );
@@ -47,13 +55,13 @@ export default function AppHomePage() {
   const router = useRouter();
   const { user, spaces } = state;
 
-  // Redirect to sign-in if not authenticated
   if (!user) {
     return (
       <AppShell>
-        <div className="py-16 text-center">
-          <p className="text-[#4A5568] mb-4">Sign in to view your spaces.</p>
-          <Button variant="primary" onClick={() => router.push("/sign-in")}>
+        <div className="py-20 text-center max-w-sm mx-auto">
+          <h1 className="text-2xl font-semibold text-[#061E47] mb-3">Sign in to your account</h1>
+          <p className="text-[#4A5568] text-sm mb-6">Access your savings spaces, records, and permissions.</p>
+          <Button variant="primary" fullWidth onClick={() => router.push("/sign-in")}>
             Sign in
           </Button>
         </div>
@@ -63,82 +71,64 @@ export default function AppHomePage() {
 
   const mySpaces = spaces.filter((s) => s.type !== "campaign");
   const campaigns = spaces.filter((s) => s.type === "campaign");
+  const totalSaved = mySpaces.reduce((sum, s) => sum + s.savedAmount, 0);
 
   return (
     <AppShell>
-      <div className="flex items-center justify-between gap-4 mb-10">
-        <div>
-          <h1 className="text-2xl font-semibold text-[#061E47] tracking-tight">
-            Your spaces
-          </h1>
-          <p className="text-sm text-[#718096] mt-1">
-            <span className="demo-badge">Demo</span>
-          </p>
+      {/* Header section with financial overview */}
+      <div className="pb-8 border-b border-[#E2E8F0] mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-[#061E47] tracking-tight">
+              Your savings spaces
+            </h1>
+            <p className="text-sm text-[#4A5568] mt-1.5">
+              {formatCurrency(totalSaved, "GBP")} total saved across {mySpaces.length}{" "}
+              {mySpaces.length === 1 ? "space" : "spaces"}
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => router.push("/app/spaces/new")}
+          >
+            Create space
+          </Button>
         </div>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => router.push("/app/spaces/new")}
-        >
-          New space
-        </Button>
       </div>
 
-      {/* Savings spaces */}
+      {/* Savings spaces list */}
       {mySpaces.length === 0 ? (
-        <div className="py-16 text-center border border-dashed border-[#CBD5E0] rounded-xl">
-          <p className="text-[#4A5568] mb-2 font-medium">No spaces yet</p>
-          <p className="text-sm text-[#718096] mb-6" style={{ maxWidth: "36ch", margin: "0 auto 1.5rem" }}>
-            Create a space for a goal — a holiday fund, a group savings circle,
-            or anything else that matters.
+        <div className="py-16 text-center border border-dashed border-[#CBD5E0] rounded-xl px-4">
+          <h2 className="text-lg font-semibold text-[#061E47] mb-2">No active savings spaces</h2>
+          <p className="text-sm text-[#718096] mb-6 max-w-sm mx-auto">
+            Create a space for what matters: a holiday, emergency savings, or an Ajo circle.
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Button variant="primary" onClick={() => router.push("/app/spaces/new")}>
-              Create a space
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => router.push("/invite/inv-abc123")}
-            >
-              Join with an invite
-            </Button>
-          </div>
+          <Button variant="primary" onClick={() => router.push("/app/spaces/new")}>
+            Create your first space
+          </Button>
         </div>
       ) : (
-        <div>
+        <section>
           <div className="divide-y divide-[#E2E8F0]">
             {mySpaces.map((space) => (
               <SpaceRow key={space.id} space={space} />
             ))}
           </div>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => router.push("/app/spaces/new")}
-            >
-              Create another space
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/invite/inv-abc123")}
-            >
-              Join with an invite
-            </Button>
-          </div>
-        </div>
+        </section>
       )}
 
       {/* Campaigns section */}
       {campaigns.length > 0 && (
-        <section className="mt-14">
-          <h2 className="text-base font-semibold text-[#061E47] mb-1">Campaigns</h2>
-          <p className="text-sm text-[#718096] mb-5">
-            Fundraising campaigns you&apos;re running.
-          </p>
-          <div className="divide-y divide-[#E2E8F0]">
+        <section className="mt-16 pt-10 border-t border-[#E2E8F0]">
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <div>
+              <h2 className="text-xl font-semibold text-[#061E47]">Public campaigns</h2>
+              <p className="text-sm text-[#718096] mt-0.5">
+                Fundraising initiatives collecting contributions from anyone.
+              </p>
+            </div>
+          </div>
+          <div className="divide-y divide-[#E2E8F0] mt-4">
             {campaigns.map((space) => (
               <SpaceRow key={space.id} space={space} />
             ))}

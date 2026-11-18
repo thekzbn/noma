@@ -14,15 +14,15 @@ export function PublicNav() {
       style={{ backdropFilter: "blur(8px)" }}
     >
       <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-8">
-        {/* Logo — counts as 1 of 4 non-CTA links */}
+        {/* Logomark: noma. */}
         <Link
           href="/"
-          className="text-[#1F4591] font-semibold text-lg tracking-tight hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
+          className="text-[#1F4591] font-semibold text-xl tracking-tight hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B6AD0] rounded"
         >
-          Noma
+          noma.
         </Link>
 
-        {/* Desktop nav — 2 more non-CTA links */}
+        {/* Desktop nav: non-CTA links */}
         <nav className="hidden sm:flex items-center gap-6" aria-label="Main navigation">
           <Link
             href="/how-it-works"

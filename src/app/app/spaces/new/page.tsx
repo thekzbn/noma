@@ -24,17 +24,17 @@ const SPACE_TYPES: { value: SpaceType; label: string; desc: string }[] = [
   {
     value: "shared",
     label: "Shared savings",
-    desc: "Save together — family, friends, or colleagues — towards a common goal.",
+    desc: "Save together with family, friends, or colleagues towards a common goal.",
   },
   {
     value: "community",
     label: "Community savings",
-    desc: "Ajo, Esusu, susu — a rotating or pooled fund with governance rules.",
+    desc: "An Ajo, Esusu, or rotating pooled fund with custom governance rules.",
   },
   {
     value: "campaign",
     label: "Fundraising campaign",
-    desc: "Raise money from the public. Anyone can donate — no Noma account needed.",
+    desc: "Raise contributions from the public. Anyone can contribute without registering first.",
   },
 ];
 
@@ -144,8 +144,8 @@ export default function NewSpacePage() {
       members: [
         {
           id: "member-me",
-          name: user?.name ?? "You (demo)",
-          email: user?.email ?? "you@demo.example",
+          name: user?.name ?? "Space Owner",
+          email: user?.email ?? "owner@noma.app",
           role: "owner",
           joinedAt: new Date().toISOString().slice(0, 10),
           permissions: {
@@ -462,8 +462,9 @@ export default function NewSpacePage() {
                   .split("\n")
                   .filter(Boolean)
                   .map((r) => (
-                    <li key={r} className="text-sm text-[#061E47]">
-                      — {r}
+                    <li key={r} className="text-sm text-[#061E47] flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2B6AD0] shrink-0" />
+                      <span>{r}</span>
                     </li>
                   ))}
               </ul>

@@ -1,5 +1,5 @@
-// Demo data — clearly labeled as sample content for UI exploration only.
-// No data persists across sessions. This is not connected to any backend.
+// Sample space and transaction data for development.
+// Ready for backend integration.
 
 export type SpaceType =
   | "personal"
@@ -132,8 +132,8 @@ export const DEMO_SPACES: Space[] = [
     members: [
       {
         id: "member-me",
-        name: "You (demo)",
-        email: "you@demo.example",
+        name: "You",
+        email: "you@example.com",
         role: "owner",
         joinedAt: "2026-09-01",
         permissions: {
@@ -216,8 +216,8 @@ export const DEMO_SPACES: Space[] = [
     members: [
       {
         id: "member-me",
-        name: "You (demo)",
-        email: "you@demo.example",
+        name: "You",
+        email: "you@example.com",
         role: "owner",
         joinedAt: "2026-10-10",
         permissions: {
@@ -317,8 +317,8 @@ export const DEMO_SPACES: Space[] = [
     members: [
       {
         id: "member-me",
-        name: "You (demo)",
-        email: "you@demo.example",
+        name: "You",
+        email: "you@example.com",
         role: "admin",
         joinedAt: "2026-06-01",
         permissions: {
@@ -416,7 +416,7 @@ export const DEMO_SPACES: Space[] = [
         status: "completed",
         memberId: "member-5",
         memberName: "Folake Adewale",
-        note: "Cycle 2 payout — Folake's turn",
+        note: "Cycle 2 payout: Folake's turn",
         reference: "NMA-TX-0010",
       },
     ],
@@ -428,7 +428,7 @@ export const DEMO_SPACES: Space[] = [
         amount: 2000,
         currency: "GBP",
         destination: "Ifeoma's bank account (ending 4821)",
-        reason: "Cycle 3 payout — Ifeoma's scheduled turn",
+        reason: "Cycle 3 payout: Ifeoma's scheduled turn",
         status: "pending",
         approvalsRequired: 2,
         approvalsReceived: ["member-me"],
@@ -437,7 +437,7 @@ export const DEMO_SPACES: Space[] = [
   },
 ];
 
-// --- SAMPLE PUBLIC CAMPAIGN ---
+// --- PUBLIC CAMPAIGN ---
 
 export const DEMO_CAMPAIGN: Space = {
   id: "campaign-1",
@@ -453,7 +453,7 @@ export const DEMO_CAMPAIGN: Space = {
   status: "active",
   isPublic: true,
   shareUrl: "/campaign/campaign-1",
-  beneficiary: "Government Secondary School, Oyo — library rebuilding project",
+  beneficiary: "Government Secondary School, Oyo (library rebuilding project)",
   rules: [],
   members: [
     {

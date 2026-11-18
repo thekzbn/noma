@@ -3,9 +3,9 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "Noma — save for what matters",
+  title: "noma. | Save for what matters",
   description:
-    "Create savings spaces for your goals — alone, with family and friends, or as a community.",
+    "Create savings spaces for your goals: alone, with family and friends, or as a community.",
 };
 
 export default function RootLayout({

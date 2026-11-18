@@ -163,7 +163,7 @@ export default function PayoutPage({ params }: { params: Promise<{ id: string }>
                 ['Amount', formatCurrency(parsedAmount, space.currency)],
                 ['Destination', destination],
                 ['Reason', reason],
-                ['Approvals needed', needsApproval ? `${space.governanceThreshold ?? 2} members` : 'None — instant release'],
+                ['Approvals needed', needsApproval ? `${space.governanceThreshold ?? 2} members` : 'None (direct release)'],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -174,8 +174,8 @@ export default function PayoutPage({ params }: { params: Promise<{ id: string }>
                 </div>
               ))}
             </dl>
-            <p style={{ fontSize: '0.8125rem', color: '#68A4F1', marginBottom: '2rem' }}>
-              Demo — no actual transfer takes place.
+            <p style={{ fontSize: '0.8125rem', color: '#718096', marginBottom: '2rem' }}>
+              Payouts are disbursed according to the governance rules established for this space.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Button variant="secondary" onClick={() => setStep('form')}>Back</Button>
